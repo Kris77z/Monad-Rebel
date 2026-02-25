@@ -1,0 +1,40 @@
+{
+  "services": [
+    {
+      "id": "writer-v1",
+      "name": "AI Content Writer",
+      "description": "Generate articles, tweets, and analysis using AI",
+      "endpoint": "http://localhost:3001",
+      "taskType": "content-generation",
+      "skills": ["article", "tweet", "analysis", "monad"],
+      "price": "10000000000000000",
+      "currency": "MON",
+      "network": "eip155:10143",
+      "provider": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "id": "auditor-v1",
+      "name": "Smart Contract Auditor",
+      "description": "Audit Solidity contracts for loss-of-funds vulnerabilities",
+      "endpoint": "http://localhost:3001",
+      "taskType": "smart-contract-audit",
+      "skills": ["solidity", "vulnerability", "monad", "evm"],
+      "price": "20000000000000000",
+      "currency": "MON",
+      "network": "eip155:10143",
+      "provider": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "id": "defi-analyst-v1",
+      "name": "DeFi Protocol Analyzer",
+      "description": "Analyze DeFi protocols with TVL, risk, and strategy guidance",
+      "endpoint": "http://localhost:3001",
+      "taskType": "defi-analysis",
+      "skills": ["tvl", "risk", "yield", "monad"],
+      "price": "15000000000000000",
+      "currency": "MON",
+      "network": "eip155:10143",
+      "provider": "0x0000000000000000000000000000000000000000"
+    }
+  ]
+}

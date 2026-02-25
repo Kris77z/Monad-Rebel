@@ -1,0 +1,16 @@
+{
+  "id": "defi-analyst-v1",
+  "name": "DeFi Protocol Analyzer",
+  "taskTypes": ["defi-analysis", "defi"],
+  "skills": ["tvl", "risk", "yield", "monad"],
+  "priceWei": "15000000000000000",
+  "output": {
+    "type": "text"
+  },
+  "llm": {
+    "temperature": 0.4
+  },
+  "fallback": {
+    "summary": "Provide DeFi protocol analysis with TVL, risk, and strategy."
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "insights": [
+    {
+      "lesson": "Reasonable detail for MVP task.",
+      "count": 3,
+      "taskTypes": [
+        "defi-analysis",
+        "content-generation"
+      ],
+      "updatedAt": 1771997810
+    },
+    {
+      "lesson": "**Monad DeFi Portfolio Allocation Framework: Early-Stage Risk Management** ### Market Context & Constraints Monad mainnet (Q1 2025) exhibits classic launch economics: emission-driven APYs (50-400%) ar",
+      "count": 1,
+      "taskTypes": [
+        "content-generation"
+      ],
+      "updatedAt": 1772017827
+    },
+    {
+      "lesson": "Avoid protocols with EOA proxy admins and un-timelocked validator sets; owner-controlled instant upgrades enable immediate stake drainage.",
+      "count": 1,
+      "taskTypes": [
+        "token-scan"
+      ],
+      "updatedAt": 1772017713
+    },
+    {
+      "lesson": "Avoid large positions in sub-$10M Monad pools due to slippage, and treat 50-400% APYs as temporary incentives with elevated smart contract risk.",
+      "count": 1,
+      "taskTypes": [
+        "yield-search"
+      ],
+      "updatedAt": 1772017600
+    },
+    {
+      "lesson": "Quantify how parallel execution reduces AI agent latency and compute costs to make throughput advantages economically concrete.",
+      "count": 1,
+      "taskTypes": [
+        "content-generation"
+      ],
+      "updatedAt": 1772017440
+    },
+    {
+      "lesson": "**Lesson:** Always require contract addresses or source code upfront; without inputs, security tools return null results, leaving critical vulnerabilities undetected and delaying risk mitigation. ---",
+      "count": 1,
+      "taskTypes": [
+        "content-generation"
+      ],
+      "updatedAt": 1772011706
+    },
+    {
+      "lesson": "Validate contract address or source code exists before executing gas optimization analysis.",
+      "count": 1,
+      "taskTypes": [
+        "gas-optimization"
+      ],
+      "updatedAt": 1772011563
+    },
+    {
+      "lesson": "Provide contract address or bytecode before scanning; empty input yields zero signal.",
+      "count": 1,
+      "taskTypes": [
+        "token-scan"
+      ],
+      "updatedAt": 1772011526
+    },
+    {
+      "lesson": "Never submit empty vulnerability arrays; comprehensive audits require detailed line-by-line analysis with severity ratings for every checked security pattern.",
+      "count": 1,
+      "taskTypes": [
+        "smart-contract-audit"
+      ],
+      "updatedAt": 1772011478
+    },
+    {
+      "lesson": "**TOKEN SECURITY AUDIT REPORT TEMPLATE** **Document Control** - **Project:** [TOKEN_NAME / TICKER] - **Contract Address:** [0x... on Monad Network] - **Audit Date:** [YYYY-MM-DD] - **Auditor:** [NAME/",
+      "count": 1,
+      "taskTypes": [
+        "content-generation"
+      ],
+      "updatedAt": 1772010118
+    },
+    {
+      "lesson": "Provide contract source code or deployment address to enable gas optimization analysis and storage packing recommendations.",
+      "count": 1,
+      "taskTypes": [
+        "gas-optimization"
+      ],
+      "updatedAt": 1772009948
+    },
+    {
+      "lesson": "Always provide the contract address or source code before requesting a scan; token security analysis cannot proceed without target bytecode.",
+      "count": 1,
+      "taskTypes": [
+        "token-scan"
+      ],
+      "updatedAt": 1772009877
+    },
+    {
+      "lesson": "Never return empty vulnerability arrays without verified inputs; always request contract code or address when absent.",
+      "count": 1,
+      "taskTypes": [
+        "smart-contract-audit"
+      ],
+      "updatedAt": 1772009828
+    },
+    {
+      "lesson": "Validate token contract address, chain, and deployment status before initiating DeFi analysis to prevent workflow blocking.",
+      "count": 1,
+      "taskTypes": [
+        "defi-analysis"
+      ],
+      "updatedAt": 1772008850
+    },
+    {
+      "lesson": "Provide complete contract source code or deployed address before initiating security audits; missing inputs yield inconclusive results and unquantified risks.",
+      "count": 1,
+      "taskTypes": [
+        "content-generation"
+      ],
+      "updatedAt": 1772000472
+    },
+    {
+      "lesson": "Submit contract source code or bytecode with every gas optimization request to analyze storage patterns and opcode sequences.",
+      "count": 1,
+      "taskTypes": [
+        "gas-optimization"
+      ],
+      "updatedAt": 1772000424
+    },
+    {
+      "lesson": "Always provide contract source code or verified address before scanning; missing inputs generate false \"safe\" ratings while hiding actual rug-pull risks.",
+      "count": 1,
+      "taskTypes": [
+        "token-scan"
+      ],
+      "updatedAt": 1772000362
+    },
+    {
+      "lesson": "Always document tested code sections and attack vectors when returning empty results to prove thoroughness and avoid short evaluations.",
+      "count": 1,
+      "taskTypes": [
+        "smart-contract-audit"
+      ],
+      "updatedAt": 1772000324
+    },
+    {
+      "lesson": "Explicitly connect parallel execution mechanics to AI agent perception-action loops to demonstrate throughput requirements for real-time autonomy.",
+      "count": 1,
+      "taskTypes": [
+        "content-generation"
+      ],
+      "updatedAt": 1771999647
+    },
+    {
+      "lesson": "Expand audit reports with detailed per-function analysis; empty vulnerability arrays indicate incomplete coverage for comprehensive reviews.",
+      "count": 1,
+      "taskTypes": [
+        "smart-contract-audit"
+      ],
+      "updatedAt": 1771999631
+    }
+  ]
+}

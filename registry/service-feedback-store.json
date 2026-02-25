@@ -1,0 +1,415 @@
+{
+  "feedback": [
+    {
+      "serviceId": "writer-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-001",
+      "score": 85,
+      "taskType": "content-generation",
+      "comment": "Clear and well-structured Monad analysis",
+      "timestamp": 1708700000
+    },
+    {
+      "serviceId": "writer-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-002",
+      "score": 78,
+      "taskType": "content-generation",
+      "comment": "Good tweet thread but could use more data points",
+      "timestamp": 1708750000
+    },
+    {
+      "serviceId": "writer-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-003",
+      "score": 90,
+      "taskType": "writing",
+      "comment": "Excellent technical article on parallel execution",
+      "timestamp": 1708800000
+    },
+    {
+      "serviceId": "writer-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-004",
+      "score": 82,
+      "taskType": "content-generation",
+      "timestamp": 1708850000
+    },
+    {
+      "serviceId": "auditor-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-005",
+      "score": 72,
+      "taskType": "smart-contract-audit",
+      "comment": "Found common issues but missed a subtle reentrancy",
+      "timestamp": 1708710000
+    },
+    {
+      "serviceId": "auditor-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-006",
+      "score": 65,
+      "taskType": "smart-contract-audit",
+      "comment": "Missed unchecked return value in external call",
+      "timestamp": 1708760000
+    },
+    {
+      "serviceId": "auditor-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-007",
+      "score": 80,
+      "taskType": "smart-contract-audit",
+      "comment": "Solid audit, caught access control flaw",
+      "timestamp": 1708830000
+    },
+    {
+      "serviceId": "auditor-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-008",
+      "score": 58,
+      "taskType": "audit",
+      "comment": "Too many false positives",
+      "timestamp": 1708880000
+    },
+    {
+      "serviceId": "defi-analyst-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-009",
+      "score": 88,
+      "taskType": "defi-analysis",
+      "comment": "Comprehensive TVL analysis with actionable insights",
+      "timestamp": 1708720000
+    },
+    {
+      "serviceId": "defi-analyst-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-010",
+      "score": 92,
+      "taskType": "defi-analysis",
+      "comment": "Excellent risk assessment of lending protocols",
+      "timestamp": 1708780000
+    },
+    {
+      "serviceId": "defi-analyst-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-011",
+      "score": 85,
+      "taskType": "defi",
+      "comment": "Good yield comparison but missing impermanent loss calc",
+      "timestamp": 1708840000
+    },
+    {
+      "serviceId": "tx-decoder-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-012",
+      "score": 75,
+      "taskType": "tx-decode",
+      "comment": "Correctly decoded swap but missed approval event",
+      "timestamp": 1708730000
+    },
+    {
+      "serviceId": "tx-decoder-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-013",
+      "score": 82,
+      "taskType": "tx-decode",
+      "comment": "Good breakdown of multi-hop swap",
+      "timestamp": 1708790000
+    },
+    {
+      "serviceId": "tx-decoder-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-014",
+      "score": 70,
+      "taskType": "transaction-analysis",
+      "timestamp": 1708860000
+    },
+    {
+      "serviceId": "gas-optimizer-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-015",
+      "score": 90,
+      "taskType": "gas-optimization",
+      "comment": "Found 3 storage optimizations saving 40% gas",
+      "timestamp": 1708740000
+    },
+    {
+      "serviceId": "gas-optimizer-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-016",
+      "score": 88,
+      "taskType": "gas-optimization",
+      "comment": "Great struct packing suggestion",
+      "timestamp": 1708810000
+    },
+    {
+      "serviceId": "gas-optimizer-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-017",
+      "score": 95,
+      "taskType": "gas",
+      "comment": "Assembly optimization reduced gas by 60%",
+      "timestamp": 1708870000
+    },
+    {
+      "serviceId": "token-scanner-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-018",
+      "score": 68,
+      "taskType": "token-scan",
+      "comment": "Detected hidden mint but missed blacklist function",
+      "timestamp": 1708715000
+    },
+    {
+      "serviceId": "token-scanner-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-019",
+      "score": 55,
+      "taskType": "token-scan",
+      "comment": "Too many false positives on standard ERC-20",
+      "timestamp": 1708775000
+    },
+    {
+      "serviceId": "token-scanner-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-020",
+      "score": 72,
+      "taskType": "token-risk",
+      "comment": "Correctly identified proxy risk",
+      "timestamp": 1708845000
+    },
+    {
+      "serviceId": "abi-reader-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-021",
+      "score": 80,
+      "taskType": "abi-interact",
+      "comment": "Clean function grouping and clear explanations",
+      "timestamp": 1708725000
+    },
+    {
+      "serviceId": "abi-reader-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-022",
+      "score": 85,
+      "taskType": "abi-read",
+      "comment": "Correctly identified governance pattern",
+      "timestamp": 1708785000
+    },
+    {
+      "serviceId": "abi-reader-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-023",
+      "score": 78,
+      "taskType": "abi",
+      "timestamp": 1708855000
+    },
+    {
+      "serviceId": "yield-finder-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-024",
+      "score": 70,
+      "taskType": "yield-search",
+      "comment": "Good overview but APY estimates were outdated",
+      "timestamp": 1708735000
+    },
+    {
+      "serviceId": "yield-finder-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-025",
+      "score": 76,
+      "taskType": "yield-search",
+      "comment": "Useful risk comparison of staking vs LP",
+      "timestamp": 1708795000
+    },
+    {
+      "serviceId": "yield-finder-v1",
+      "hunterId": "10143:seed",
+      "missionId": "seed-026",
+      "score": 65,
+      "taskType": "yield",
+      "comment": "Missed several new Monad testnet protocols",
+      "timestamp": 1708865000
+    },
+    {
+      "serviceId": "writer-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "6a95fc8a-3204-4d9d-9dbf-2366682c7dda",
+      "score": 70,
+      "taskType": "content-generation",
+      "comment": "Reasonable detail for MVP task.",
+      "timestamp": 1771997808
+    },
+    {
+      "serviceId": "auditor-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "3aa72b5b-1639-4523-b1b3-7e115296f739",
+      "score": 50,
+      "taskType": "smart-contract-audit",
+      "comment": "Result is short; could be expanded.",
+      "timestamp": 1771999600
+    },
+    {
+      "serviceId": "writer-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "c57f00f4-d14b-46b5-8e3b-565103f0810e",
+      "score": 90,
+      "taskType": "content-generation",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1771999614
+    },
+    {
+      "serviceId": "auditor-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "40c7d518-2c87-4e41-9304-8410d1199fcb",
+      "score": 50,
+      "taskType": "smart-contract-audit",
+      "comment": "Result is short; could be expanded.",
+      "timestamp": 1772000297
+    },
+    {
+      "serviceId": "token-scanner-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "575c4691-0c2e-4021-90d3-dcf749d91e2b",
+      "score": 90,
+      "taskType": "token-scan",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772000345
+    },
+    {
+      "serviceId": "gas-optimizer-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "ff94c10d-cba9-4536-8822-99c936c5e45c",
+      "score": 90,
+      "taskType": "gas-optimization",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772000399
+    },
+    {
+      "serviceId": "writer-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "0111cb2e-5cf0-4b88-b983-ac1b95224f40",
+      "score": 90,
+      "taskType": "content-generation",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772000460
+    },
+    {
+      "serviceId": "defi-analyst-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "74b58d3f-9ea6-4060-af93-55c55823e8fd",
+      "score": 90,
+      "taskType": "defi-analysis",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772008833
+    },
+    {
+      "serviceId": "auditor-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "7fc58efe-bd11-42e6-99c6-bfdb67a03a64",
+      "score": 50,
+      "taskType": "smart-contract-audit",
+      "comment": "Result is short; could be expanded.",
+      "timestamp": 1772009807
+    },
+    {
+      "serviceId": "token-scanner-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "7fc58efe-bd11-42e6-99c6-bfdb67a03a64",
+      "score": 90,
+      "taskType": "token-scan",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772009861
+    },
+    {
+      "serviceId": "gas-optimizer-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "7fc58efe-bd11-42e6-99c6-bfdb67a03a64",
+      "score": 90,
+      "taskType": "gas-optimization",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772009926
+    },
+    {
+      "serviceId": "writer-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "7fc58efe-bd11-42e6-99c6-bfdb67a03a64",
+      "score": 90,
+      "taskType": "content-generation",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772010035
+    },
+    {
+      "serviceId": "auditor-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "ad3687eb-5cd7-42ae-a089-b223dbd8763b",
+      "score": 50,
+      "taskType": "smart-contract-audit",
+      "comment": "Result is short; could be expanded.",
+      "timestamp": 1772011461
+    },
+    {
+      "serviceId": "token-scanner-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "ad3687eb-5cd7-42ae-a089-b223dbd8763b",
+      "score": 90,
+      "taskType": "token-scan",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772011511
+    },
+    {
+      "serviceId": "gas-optimizer-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "ad3687eb-5cd7-42ae-a089-b223dbd8763b",
+      "score": 70,
+      "taskType": "gas-optimization",
+      "comment": "Reasonable detail for MVP task.",
+      "timestamp": 1772011552
+    },
+    {
+      "serviceId": "writer-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "ad3687eb-5cd7-42ae-a089-b223dbd8763b",
+      "score": 90,
+      "taskType": "content-generation",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772011642
+    },
+    {
+      "serviceId": "writer-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "d0b58c15-f5a1-4028-af62-03a26b4c2f55",
+      "score": 90,
+      "taskType": "content-generation",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772017403
+    },
+    {
+      "serviceId": "yield-finder-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "b164b13c-11ab-4161-b574-6564833e5cf0",
+      "score": 90,
+      "taskType": "yield-search",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772017575
+    },
+    {
+      "serviceId": "token-scanner-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "b164b13c-11ab-4161-b574-6564833e5cf0",
+      "score": 90,
+      "taskType": "token-scan",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772017690
+    },
+    {
+      "serviceId": "writer-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "b164b13c-11ab-4161-b574-6564833e5cf0",
+      "score": 90,
+      "taskType": "content-generation",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772017774
+    }
+  ]
+}

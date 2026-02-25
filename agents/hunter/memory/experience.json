@@ -1,0 +1,202 @@
+{
+  "experiences": [
+    {
+      "missionId": "5340edb7-d32e-456e-afe7-2178d2b80f5e",
+      "goal": "Find the best risk-adjusted yield opportunities on Monad right now. Compare lending, LP, and staking strategies.",
+      "serviceUsed": "defi-analyst-v1",
+      "taskType": "defi-analysis",
+      "score": 7,
+      "lesson": "Reasonable detail for MVP task.",
+      "timestamp": 1771993583
+    },
+    {
+      "missionId": "96b90861-ff6d-400a-8e2b-0634fdff4a33",
+      "goal": "Write a concise analysis of Monad parallel execution and why it matters for on-chain AI agents.",
+      "serviceUsed": "writer-v1",
+      "taskType": "content-generation",
+      "score": 7,
+      "lesson": "Reasonable detail for MVP task.",
+      "timestamp": 1771993638
+    },
+    {
+      "missionId": "6a95fc8a-3204-4d9d-9dbf-2366682c7dda",
+      "goal": "Write a concise analysis of Monad parallel execution and why it matters for on-chain AI agents.",
+      "serviceUsed": "writer-v1",
+      "taskType": "content-generation",
+      "score": 7,
+      "lesson": "Reasonable detail for MVP task.",
+      "timestamp": 1771997810
+    },
+    {
+      "missionId": "3aa72b5b-1639-4523-b1b3-7e115296f739",
+      "goal": "Perform comprehensive security audit of the ERC-20 token contract focusing on loss-of-funds vulnerabilities: analyze reentrancy attack vectors in transfer/approval functions, verify access control mechanisms for privileged functions (minting, burning, ownership), and identify unchecked return values from external calls",
+      "serviceUsed": "auditor-v1",
+      "taskType": "smart-contract-audit",
+      "score": 5,
+      "lesson": "Expand audit reports with detailed per-function analysis; empty vulnerability arrays indicate incomplete coverage for comprehensive reviews.",
+      "timestamp": 1771999631
+    },
+    {
+      "missionId": "c57f00f4-d14b-46b5-8e3b-565103f0810e",
+      "goal": "Write a concise technical analysis explaining Monad's parallel execution architecture, its consensus mechanism improvements, and specifically why high-throughput, low-latency parallel execution is critical for enabling complex on-chain AI agents. Cover how sequential execution bottlenecks limit current agent capabilities and how Monad's approach enables real-time autonomous decision-making.",
+      "serviceUsed": "writer-v1",
+      "taskType": "content-generation",
+      "score": 9,
+      "lesson": "Explicitly connect parallel execution mechanics to AI agent perception-action loops to demonstrate throughput requirements for real-time autonomy.",
+      "timestamp": 1771999647
+    },
+    {
+      "missionId": "40c7d518-2c87-4e41-9304-8410d1199fcb",
+      "goal": "Perform a comprehensive security audit of the token contract's Solidity code to identify vulnerabilities, exploits, and coding flaws including reentrancy, overflow/underflow, access control issues, and logic errors",
+      "serviceUsed": "auditor-v1",
+      "taskType": "smart-contract-audit",
+      "score": 5,
+      "lesson": "Always document tested code sections and attack vectors when returning empty results to prove thoroughness and avoid short evaluations.",
+      "timestamp": 1772000324
+    },
+    {
+      "missionId": "575c4691-0c2e-4021-90d3-dcf749d91e2b",
+      "goal": "Analyze the token contract for rug-pull indicators including minting functions, ownership patterns, blacklist capabilities, sell restrictions, hidden backdoors, and liquidity manipulation risks\n\nContext from previous phases:\n[Solidity Security Audit] { \"vulnerabilities\": [] }",
+      "serviceUsed": "token-scanner-v1",
+      "taskType": "token-scan",
+      "score": 9,
+      "lesson": "Always provide contract source code or verified address before scanning; missing inputs generate false \"safe\" ratings while hiding actual rug-pull risks.",
+      "timestamp": 1772000362
+    },
+    {
+      "missionId": "ff94c10d-cba9-4536-8822-99c936c5e45c",
+      "goal": "Review the contract for gas inefficiencies and provide optimized code suggestions to reduce deployment and transaction costs while maintaining security integrity\n\nContext from previous phases:\n[Solidity Security Audit] { \"vulnerabilities\": [] }\n[Rug Pull Risk Scan] { \"riskScore\": 0, \"riskLevel\": \"safe\", \"findings\": [ { \"title\": \"No Contract Data Provided\", \"severity\": \"info\", \"description\": \"No token contract code, address, or ABI was provided for analysis. The scanner requires contract source code or bytecode to detect rug-pull mechanisms, ownership patterns, and hidden functions.\", \"evidence\": \"Missing contract input data\" } ], \"tokenomics\": { \"totalSupply\": \"unknown\", \"ownerBalance\": \"unknown\", \"isMintable\": \"unknown\", \"isPausable\": \"unknown\", \"hasBlacklist\": \"unknown\" }, \"recommendation\": \"Please provide the token contract address, source code, or deployment transaction hash to enable proper risk assessment. For Monad ecosystem tokens, ensure the contract is verified on the explorer before scanning.\" }",
+      "serviceUsed": "gas-optimizer-v1",
+      "taskType": "gas-optimization",
+      "score": 9,
+      "lesson": "Submit contract source code or bytecode with every gas optimization request to analyze storage patterns and opcode sequences.",
+      "timestamp": 1772000424
+    },
+    {
+      "missionId": "0111cb2e-5cf0-4b88-b983-ac1b95224f40",
+      "goal": "Compile findings from the security audit, rug-pull scan, and gas optimization into a comprehensive security report with executive summary, vulnerability details, risk ratings, remediation steps, and optimized code recommendations\n\nContext from previous phases:\n[Solidity Security Audit] { \"vulnerabilities\": [] }\n[Rug Pull Risk Scan] { \"riskScore\": 0, \"riskLevel\": \"safe\", \"findings\": [ { \"title\": \"No Contract Data Provided\", \"severity\": \"info\", \"description\": \"No token contract code, address, or ABI was provided for analysis. The scanner requires contract source code or bytecode to detect rug-pull mechanisms, ownership patterns, and hidden functions.\", \"evidence\": \"Missing contract input data\" } ], \"tokenomics\": { \"totalSupply\": \"unknown\", \"ownerBalance\": \"unknown\", \"isMintable\": \"unknown\", \"isPausable\": \"unknown\", \"hasBlacklist\": \"unknown\" }, \"recommendation\": \"Please provide the token contract address, source code, or deployment transaction hash to enable proper risk assessment. For Monad ecosystem tokens, ensure the contract is verified on the explorer before scanning.\" }\n[Gas Optimization] { \"optimizations\": [], \"summary\": \"No contract source code, bytecode, or address was provided for analysis. Gas optimization requires the Solidity source code (preferred) or deployed bytecode to identify storage patterns, redundant SLOADs/SSTOREs, struct packing opportunities, and inefficient opcode sequences. Without the contract code, specific line-by-line optimizations cannot be determined. Please provide the Solidity files to enable detailed gas profiling for Monad's parallel execution environment, where storage access patterns and gas limit estimation (charged by limit, not usage) are critical cost factors.\" }",
+      "serviceUsed": "writer-v1",
+      "taskType": "content-generation",
+      "score": 9,
+      "lesson": "Provide complete contract source code or deployed address before initiating security audits; missing inputs yield inconclusive results and unquantified risks.",
+      "timestamp": 1772000472
+    },
+    {
+      "missionId": "74b58d3f-9ea6-4060-af93-55c55823e8fd",
+      "goal": "Generate an investment report for this token: first scan the contract for risks, then analyze its DeFi ecosystem potential, and write a final investment thesis with risk-reward analysis.",
+      "serviceUsed": "defi-analyst-v1",
+      "taskType": "defi-analysis",
+      "score": 9,
+      "lesson": "Validate token contract address, chain, and deployment status before initiating DeFi analysis to prevent workflow blocking.",
+      "timestamp": 1772008850
+    },
+    {
+      "missionId": "7fc58efe-bd11-42e6-99c6-bfdb67a03a64",
+      "goal": "Perform a comprehensive security audit of the provided token contract's Solidity code. Identify all common vulnerabilities including: reentrancy, integer overflow/underflow, access control issues, front-running vulnerabilities, timestamp dependence, unchecked external calls, storage collision risks, and any other security flaws. If no contract code is provided, request the user to share the contract address or source code to proceed with the audit.",
+      "serviceUsed": "auditor-v1",
+      "taskType": "smart-contract-audit",
+      "score": 5,
+      "lesson": "Never return empty vulnerability arrays without verified inputs; always request contract code or address when absent.",
+      "timestamp": 1772009828
+    },
+    {
+      "missionId": "7fc58efe-bd11-42e6-99c6-bfdb67a03a64",
+      "goal": "Scan the token contract for rug-pull signals and malicious patterns. Check for: ownership concentration risks, minting privileges, hidden backdoors, blacklisting capabilities, excessive fee mechanisms, proxy patterns that allow upgrades to malicious code, liquidity locking status, and any functions that allow sudden draining of funds. If no contract is provided, request the contract address or source code to complete the scan.\n\nContext from previous phases:\n[Phase 1] { \"vulnerabilities\": [] }",
+      "serviceUsed": "token-scanner-v1",
+      "taskType": "token-scan",
+      "score": 9,
+      "lesson": "Always provide the contract address or source code before requesting a scan; token security analysis cannot proceed without target bytecode.",
+      "timestamp": 1772009877
+    },
+    {
+      "missionId": "7fc58efe-bd11-42e6-99c6-bfdb67a03a64",
+      "goal": "Analyze the token contract for gas optimization opportunities. Review storage layout, function modifiers, loop efficiency, redundant operations, packing opportunities, and recommend optimizations to reduce deployment and execution costs. If no contract code is provided, request the source code to perform the analysis.\n\nContext from previous phases:\n[Phase 1] { \"vulnerabilities\": [] }\n[Phase 2] { \"riskScore\": 0, \"riskLevel\": \"safe\", \"findings\": [ { \"title\": \"Missing Contract Input\", \"severity\": \"info\", \"description\": \"No token contract address, bytecode, or source code was provided for analysis. The scanner requires either a contract address (e.g., 0x...) or the full contract source code to perform a security audit.\", \"evidence\": \"Task input contains scan request but lacks target contract identifier or code payload.\" } ], \"tokenomics\": { \"totalSupply\": \"unknown\", \"ownerBalance\": \"unknown\", \"isMintable\": \"unknown\", \"isPausable\": \"unknown\", \"hasBlacklist\": \"unknown\" }, \"recommendation\": \"Please provide the contract address (e.g., 0x1234...abcd) on Monad or paste the Solidity source code to complete the rug-pull and honeypot analysis.\" }",
+      "serviceUsed": "gas-optimizer-v1",
+      "taskType": "gas-optimization",
+      "score": 9,
+      "lesson": "Provide contract source code or deployment address to enable gas optimization analysis and storage packing recommendations.",
+      "timestamp": 1772009948
+    },
+    {
+      "missionId": "7fc58efe-bd11-42e6-99c6-bfdb67a03a64",
+      "goal": "Write a comprehensive token security report template covering: (1) Executive Summary format, (2) Vulnerability Assessment section structure, (3) Rug-pull Risk Analysis framework, (4) Gas Optimization Recommendations format, (5) Risk Rating methodology, (6) Remediation guidance structure, and (7) Best practices checklist. Make it professional and ready to populate with actual findings once a contract is provided.\n\nContext from previous phases:\n[Phase 1] { \"vulnerabilities\": [] }\n[Phase 2] { \"riskScore\": 0, \"riskLevel\": \"safe\", \"findings\": [ { \"title\": \"Missing Contract Input\", \"severity\": \"info\", \"description\": \"No token contract address, bytecode, or source code was provided for analysis. The scanner requires either a contract address (e.g., 0x...) or the full contract source code to perform a security audit.\", \"evidence\": \"Task input contains scan request but lacks target contract identifier or code payload.\" } ], \"tokenomics\": { \"totalSupply\": \"unknown\", \"ownerBalance\": \"unknown\", \"isMintable\": \"unknown\", \"isPausable\": \"unknown\", \"hasBlacklist\": \"unknown\" }, \"recommendation\": \"Please provide the contract address (e.g., 0x1234...abcd) on Monad or paste the Solidity source code to complete the rug-pull and honeypot analysis.\" }\n[Phase 3] { \"optimizations\": [], \"summary\": \"Analysis cannot proceed: No contract source code, address, or bytecode was provided in the task input. To perform gas optimization analysis for Monad EVM, please provide either: (1) The complete Solidity source code of the token contract, (2) A contract address on Monad mainnet/testnet for bytecode analysis, or (3) Contract creation bytecode. Once provided, analysis will cover: storage slot packing (critical for Monad's parallel execution performance), redundant SLOAD/SSTORE elimination, calldata vs memory optimization, immutable/constant usage, loop efficiency, and assembly optimizations. Note: On Monad, gas is charged by gas limit rather than gas used, making accurate gas estimation and storage access pattern optimization essential for deployment and execution cost reduction.\" }",
+      "serviceUsed": "writer-v1",
+      "taskType": "content-generation",
+      "score": 9,
+      "lesson": "**TOKEN SECURITY AUDIT REPORT TEMPLATE** **Document Control** - **Project:** [TOKEN_NAME / TICKER] - **Contract Address:** [0x... on Monad Network] - **Audit Date:** [YYYY-MM-DD] - **Auditor:** [NAME/",
+      "timestamp": 1772010118
+    },
+    {
+      "missionId": "ad3687eb-5cd7-42ae-a089-b223dbd8763b",
+      "goal": "Perform a comprehensive smart contract security audit on the token contract. Identify all common Solidity vulnerabilities including: reentrancy attacks, integer overflow/underflow, access control issues, unchecked external calls, front-running vulnerabilities, timestamp dependence, tx.origin authentication flaws, delegatecall vulnerabilities, and any other security risks. Provide specific line-by-line analysis and severity ratings for each finding.",
+      "serviceUsed": "auditor-v1",
+      "taskType": "smart-contract-audit",
+      "score": 5,
+      "lesson": "Never submit empty vulnerability arrays; comprehensive audits require detailed line-by-line analysis with severity ratings for every checked security pattern.",
+      "timestamp": 1772011478
+    },
+    {
+      "missionId": "ad3687eb-5cd7-42ae-a089-b223dbd8763b",
+      "goal": "Scan the token contract for rug-pull signals and scam indicators. Check for: hidden mint functions, ownership renunciation status, excessive transaction taxes, blacklist/whitelist functionality that could trap funds, liquidity lock status, team token allocations with short vesting periods, functions allowing sudden parameter changes, hidden backdoors, and any mechanisms that could prevent users from selling. Provide a detailed risk assessment.\n\nContext from previous phases:\n[Phase 1] { \"vulnerabilities\": [] }",
+      "serviceUsed": "token-scanner-v1",
+      "taskType": "token-scan",
+      "score": 9,
+      "lesson": "Provide contract address or bytecode before scanning; empty input yields zero signal.",
+      "timestamp": 1772011526
+    },
+    {
+      "missionId": "ad3687eb-5cd7-42ae-a089-b223dbd8763b",
+      "goal": "Analyze the token contract for gas optimization opportunities. Review the code for: inefficient storage usage (packing variables, using memory vs storage), unnecessary computations, redundant checks, suboptimal data types, excessive event emissions, inefficient loop patterns, and opportunities to use immutable/constant variables. Provide specific recommendations with estimated gas savings for each optimization.\n\nContext from previous phases:\n[Phase 1] { \"vulnerabilities\": [] }\n[Phase 2] { \"riskScore\": 0, \"riskLevel\": \"safe\", \"findings\": [ { \"title\": \"No Contract Address Provided\", \"severity\": \"info\", \"description\": \"No token contract address, bytecode, or source code was provided for analysis. The scanner requires a valid contract address (0x...) or contract code to perform rug-pull detection, ownership analysis, and tokenomics evaluation.\", \"evidence\": \"Missing input: contractAddress or contractCode\" } ], \"tokenomics\": { \"totalSupply\": \"unknown\", \"ownerBalance\": \"unknown\", \"isMintable\": \"unknown\", \"isPausable\": \"unknown\", \"hasBlacklist\": \"unknown\" }, \"recommendation\": \"Provide the token contract address (e.g., 0x1234...) or paste the contract source code to enable full risk assessment including: mint function detection, ownership analysis, hidden tax mechanisms, blacklist/whitelist checks, liquidity lock verification, and backdoor identification.\" }",
+      "serviceUsed": "gas-optimizer-v1",
+      "taskType": "gas-optimization",
+      "score": 7,
+      "lesson": "Validate contract address or source code exists before executing gas optimization analysis.",
+      "timestamp": 1772011563
+    },
+    {
+      "missionId": "ad3687eb-5cd7-42ae-a089-b223dbd8763b",
+      "goal": "Write a comprehensive security report based on the following context: The user requested a full security review but did not provide a token contract address or source code. Previous audit, rug-pull scan, and gas optimization phases were unable to complete detailed analysis due to missing contract input. Create a professional security report template that: (1) Explains why analysis could not be completed, (2) Provides a checklist of what information is needed, (3) Includes general best practices for token contract security, (4) Lists common vulnerabilities to watch for, (5) Outlines typical rug-pull indicators, and (6) Provides standard gas optimization recommendations that apply to most ERC-20 tokens.\n\nContext from previous phases:\n[Phase 1] { \"vulnerabilities\": [] }\n[Phase 2] { \"riskScore\": 0, \"riskLevel\": \"safe\", \"findings\": [ { \"title\": \"No Contract Address Provided\", \"severity\": \"info\", \"description\": \"No token contract address, bytecode, or source code was provided for analysis. The scanner requires a valid contract address (0x...) or contract code to perform rug-pull detection, ownership analysis, and tokenomics evaluation.\", \"evidence\": \"Missing input: contractAddress or contractCode\" } ], \"tokenomics\": { \"totalSupply\": \"unknown\", \"ownerBalance\": \"unknown\", \"isMintable\": \"unknown\", \"isPausable\": \"unknown\", \"hasBlacklist\": \"unknown\" }, \"recommendation\": \"Provide the token contract address (e.g., 0x1234...) or paste the contract source code to enable full risk assessment including: mint function detection, ownership analysis, hidden tax mechanisms, blacklist/whitelist checks, liquidity lock verification, and backdoor identification.\" }\n[Phase 3] { \"optimizations\": [], \"summary\": \"No contract source code, bytecode, or address was provided for analysis. The context from previous phases confirms missing input (contractAddress or contractCode). Please provide the Solidity source code, contract bytecode, or contract address (0x...) to enable gas optimization analysis for storage packing, SLOAD/SSTORE reduction, loop optimization, and Monad-specific gas limit optimizations.\" }",
+      "serviceUsed": "writer-v1",
+      "taskType": "content-generation",
+      "score": 9,
+      "lesson": "**Lesson:** Always require contract addresses or source code upfront; without inputs, security tools return null results, leaving critical vulnerabilities undetected and delaying risk mitigation. --- ",
+      "timestamp": 1772011706
+    },
+    {
+      "missionId": "d0b58c15-f5a1-4028-af62-03a26b4c2f55",
+      "goal": "Write a concise analysis covering:\n1. What Monad's parallel execution is and how it works (brief technical overview)\n2. How it differs from sequential execution models (like Ethereum)\n3. Why parallel execution matters specifically for on-chain AI agents - include benefits like throughput, latency, cost efficiency, and use cases\n4. Keep it concise (400-600 words) but informative, with clear sections",
+      "serviceUsed": "writer-v1",
+      "taskType": "content-generation",
+      "score": 9,
+      "lesson": "Quantify how parallel execution reduces AI agent latency and compute costs to make throughput advantages economically concrete.",
+      "timestamp": 1772017440
+    },
+    {
+      "missionId": "b164b13c-11ab-4161-b574-6564833e5cf0",
+      "goal": "Analyze the current DeFi yield landscape on Monad blockchain. Identify top protocols (DEXs, lending platforms, yield aggregators), current APY ranges for major pools, TVL figures, and key yield farming opportunities. Focus on active, liquid opportunities.",
+      "serviceUsed": "yield-finder-v1",
+      "taskType": "yield-search",
+      "score": 9,
+      "lesson": "Avoid large positions in sub-$10M Monad pools due to slippage, and treat 50-400% APYs as temporary incentives with elevated smart contract risk.",
+      "timestamp": 1772017600
+    },
+    {
+      "missionId": "b164b13c-11ab-4161-b574-6564833e5cf0",
+      "goal": "Scan the top DeFi protocol tokens on Monad for safety assessment. Evaluate 3-5 leading protocols for: smart contract audit status, TVL stability, team reputation, tokenomics sustainability, red flags, and overall risk rating. Focus on established protocols with actual usage on Monad.\n\nContext from previous phases:\n[MonadYieldAnalyst] **Market Context** Monad mainnet is in early-stage deployment (as of Q1 2025), characterized by aggressive liquidity mining bootstrapping and nascent protocol infrastructure. Current yield dynamics reflect typical Layer 1 launch economics: unsustainably high incentive-driven APYs (50-400%) competing against base fee-generated yields (2-8%). Key macro factors: - **Gas economics**: Sub-cent transaction costs enable granular liquidity management and high-frequency compounding, but also amplify MEV extraction risks. - **TVL concentration**: Liquidity is fragmented across 3-4 dominant DEXs with most pools <$10M TVL, creating slippage risks for large positions. - **Audit maturity**: 60-70% of active protocols have completed partial audits (typically 1-2 firms), but battle-testing remains minimal (<3 months mainnet history). - **Restaking meta**: Liquid Staking Tokens (LSTs) and Liquid Restaking Tokens (LRTs) dominate capital flows, compressing base staking yields while levering points multip...",
+      "serviceUsed": "token-scanner-v1",
+      "taskType": "token-scan",
+      "score": 9,
+      "lesson": "Avoid protocols with EOA proxy admins and un-timelocked validator sets; owner-controlled instant upgrades enable immediate stake drainage.",
+      "timestamp": 1772017713
+    },
+    {
+      "missionId": "b164b13c-11ab-4161-b574-6564833e5cf0",
+      "goal": "Produce a comprehensive written DeFi portfolio allocation plan for Monad based on: (1) Yield landscape showing high early-stage APYs (50-400%) with liquidity mining bootstrapping, and (2) Safety scan showing risk scores and findings. Create actionable allocation tiers (conservative/moderate/aggressive), specific protocol recommendations, position sizing guidance, risk management rules, and a suggested portfolio mix with rationale.\n\nContext from previous phases:\n[MonadYieldAnalyst] **Market Context** Monad mainnet is in early-stage deployment (as of Q1 2025), characterized by aggressive liquidity mining bootstrapping and nascent protocol infrastructure. Current yield dynamics reflect typical Layer 1 launch economics: unsustainably high incentive-driven APYs (50-400%) competing against base fee-generated yields (2-8%). Key macro factors: - **Gas economics**: Sub-cent transaction costs enable granular liquidity management and high-frequency compounding, but also amplify MEV extraction risks. - **TVL concentration**: Liquidity is fragmented across 3-4 dominant DEXs with most pools <$10M TVL, creating slippage risks for large positions. - **Audit maturity**: 60-70% of active protocols have completed partial audits (typically 1-2 firms), but battle-testing remains minimal (<3 months mainnet history). - **Restaking meta**: Liquid Staking Tokens (LSTs) and Liquid Restaking Tokens (LRTs) dominate capital flows, compressing base staking yields while levering points multip...\n[TokenSafetyScanner] [ { \"riskScore\": 68, \"riskLevel\": \"high\", \"findings\": [ { \"title\": \"Centralized Validator Whitelist Control\", \"severity\": \"danger\", \"description\": \"Owner can unilaterally add/remove validators from active set, enabling instant stake draining via malicious validator collusion.\", \"evidence\": \"function updateValidatorSet(address[] calldata validators, bool status) external onlyOwner\" }, { \"title\": \"Unverified Proxy Implementation\", \"severity\": \"danger\", \"description\": \"Contract uses EIP-1967 proxy with 0-day timelock, allowing immediate logic upgrades without governance delay.\", \"evidence\": \"ProxyAdmin: 0x... (EOA controlled), Timelock: none detected\" }, { \"title\": \"Unlimited Minting Authority\", \"severity\": \"warning\", \"description\": \"No supply cap on LST token minting; owner can inflate supply arbitrarily before validator activation.\", \"evidence\": \"mint() function lacks maxSupply check, onlyOwner modifier present\" }, { \"title\": \"Aggressive Emissions Schedule\", \"severity\": \"warning\", \"desc...",
+      "serviceUsed": "writer-v1",
+      "taskType": "content-generation",
+      "score": 9,
+      "lesson": "**Monad DeFi Portfolio Allocation Framework: Early-Stage Risk Management** ### Market Context & Constraints Monad mainnet (Q1 2025) exhibits classic launch economics: emission-driven APYs (50-400%) ar",
+      "timestamp": 1772017827
+    }
+  ]
+}

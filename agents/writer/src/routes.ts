@@ -1,0 +1,110 @@
+import type { Request, Response } from "express";
+import {
+  buildCaip2Network,
+  calculateRequestHash,
+  type ErrorResponse,
+  type ExecuteRequest,
+  type ExecuteSuccessResponse,
+  type PaymentRequiredResponse
+} from "@rebel/shared";
+import { writerConfig } from "./config.js";
+import { executeTask } from "./executor.js";
+import { asWriterError } from "./errors.js";
+import { commitPaymentTx, rollbackPaymentTx, verifyNativeTransfer } from "./payment.js";
+import { createReceipt } from "./receipt.js";
+import { getSkillPriceWei, resolveSkillForTaskType } from "./skill-loader.js";
+
+function parseExecuteRequest(raw: unknown): ExecuteRequest {
+  if (!raw || typeof raw !== "object") {
+    return {};
+  }
+
+  const body = raw as Record<string, unknown>;
+  return {
+    taskType: typeof body.taskType === "string" ? body.taskType : undefined,
+    taskInput: typeof body.taskInput === "string" ? body.taskInput : undefined,
+    timestamp:
+      typeof body.timestamp === "number" && Number.isFinite(body.timestamp)
+        ? body.timestamp
+        : undefined,
+    paymentTx: typeof body.paymentTx === "string" ? body.paymentTx : undefined
+  };
+}
+
+export async function executeHandler(req: Request, res: Response): Promise<void> {
+  try {
+    const body = parseExecuteRequest(req.body);
+    const requestedTaskType = body.taskType?.trim() || undefined;
+    const skill = resolveSkillForTaskType(requestedTaskType);
+    const taskType = skill.canonicalTaskType;
+    const taskInput = body.taskInput ?? "";
+    const timestamp = Math.floor(body.timestamp ?? Date.now() / 1000);
+    const amountWei = getSkillPriceWei(skill, writerConfig.priceWei);
+
+    const requestHash = calculateRequestHash({
+      taskType,
+      taskInput,
+      timestamp,
+      providerAddress: writerConfig.writerAddress
+    });
+
+    if (!body.paymentTx) {
+      const paymentRequired: PaymentRequiredResponse = {
+        x402Version: 2,
+        resource: {
+          url: "/execute",
+          description: `${skill.config.name} Service`
+        },
+        accepts: [
+          {
+            scheme: "native-transfer",
+            network: buildCaip2Network(writerConfig.chainId),
+            amount: amountWei,
+            asset: "native",
+            payTo: writerConfig.writerAddress,
+            maxTimeoutSeconds: writerConfig.paymentTimeoutSeconds
+          }
+        ],
+        paymentContext: {
+          requestHash,
+          taskType,
+          timestamp
+        }
+      };
+
+      res.status(402).json(paymentRequired);
+      return;
+    }
+
+    await verifyNativeTransfer(body.paymentTx);
+
+    try {
+      const result = await executeTask({ taskType, taskInput });
+      const receipt = await createReceipt({ requestHash, result });
+      commitPaymentTx(body.paymentTx);
+
+      const response: ExecuteSuccessResponse = {
+        result,
+        receipt,
+        payment: {
+          status: "payment-completed",
+          transaction: body.paymentTx,
+          network: buildCaip2Network(writerConfig.chainId)
+        }
+      };
+
+      res.status(200).json(response);
+    } catch (error) {
+      rollbackPaymentTx(body.paymentTx);
+      throw error;
+    }
+  } catch (error) {
+    const writerError = asWriterError(error);
+    const payload: ErrorResponse = {
+      code: writerError.code,
+      message: writerError.message,
+      details: writerError.details
+    };
+    res.status(writerError.status).json(payload);
+  }
+}

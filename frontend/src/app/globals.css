@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "streamdown/styles.css";
+
+@layer base {
+  :root {
+    /* ============================
+     * Claura-inspired Warm Theme
+     * Background: warm cream #FCF6EF
+     * Primary: dark brown #2B180A
+     * Accent: warm brown tones
+     * ============================ */
+
+    --background: 30 50% 96%;
+    /* #FCF6EF warm cream */
+    --foreground: 24 63% 10%;
+    /* #2B180A near-black brown */
+
+    --card: 30 33% 98%;
+    /* #FBF8F4 slightly warm white */
+    --card-foreground: 24 63% 10%;
+
+    --popover: 30 33% 98%;
+    --popover-foreground: 24 63% 10%;
+
+    --primary: 24 63% 10%;
+    /* #2B180A dark brown — buttons, accents */
+    --primary-foreground: 30 50% 96%;
+
+    --secondary: 30 24% 90%;
+    /* #EFE7DD warm taupe */
+    --secondary-foreground: 24 63% 10%;
+
+    --muted: 30 20% 92%;
+    /* #F0EAE2 light warm */
+    --muted-foreground: 24 10% 50%;
+    /* #8C7F73 medium warm gray */
+
+    --accent: 30 24% 90%;
+    --accent-foreground: 24 63% 10%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 30 18% 85%;
+    /* #DFD5C8 warm border */
+    --input: 30 18% 85%;
+    --ring: 24 63% 10%;
+    --radius: 0.625rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+  }
+
+  /* Halant for headings */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-halant), 'Georgia', serif;
+  }
+}
+
+/* =============================
+ * Custom Animations
+ * ============================= */
+
+/* Monad Block Pulse — sweeping light bar */
+@keyframes monad-pulse {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(300%);
+    opacity: 0;
+  }
+}
+
+.animate-monad-pulse {
+  animation: monad-pulse 3s ease-in-out infinite;
+}
+
+/* Glow effect for active agents */
+@keyframes glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 4px hsl(var(--primary) / 0.15);
+  }
+
+  50% {
+    box-shadow: 0 0 16px hsl(var(--primary) / 0.25);
+  }
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Scrollbar styling */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 2px;
+  transition: background 0.2s;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.3);
+}

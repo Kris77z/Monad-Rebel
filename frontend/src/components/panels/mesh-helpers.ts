@@ -1,0 +1,208 @@
+import type { AgentEvent, HunterRunResult } from '@/types/agent';
+
+/* ── Types ── */
+
+export type AgentKind = 'writer' | 'auditor' | 'defi' | 'gas' | 'scanner' | 'decoder' | 'abi' | 'yield' | 'unknown';
+
+export interface MeshNode {
+    id: string;
+    name: string;
+    endpoint?: string;
+    price?: string;
+    taskType?: string;
+    reputation: number;
+    reputationCount?: number;
+    reputationTrend?: 'up' | 'down' | 'stable';
+    reputationQualified?: boolean;
+    lastUsedAt?: number;
+    kind: AgentKind;
+    status: 'online' | 'selected' | 'used' | 'failed';
+}
+
+export interface ServiceMeta {
+    id: string;
+    name?: string;
+    taskType?: string;
+    price?: string;
+    reputation?: {
+        score: number;
+        count: number;
+        trend: 'up' | 'down' | 'stable';
+        qualified: boolean;
+        lastUsedAt?: number;
+    };
+}
+
+/* ── Constants ── */
+
+export const AGENT_KIND_STYLE: Record<AgentKind, { marker: string; label: string; cls: string }> = {
+    writer: { marker: 'W', label: 'WRITER', cls: 'text-sky-700' },
+    auditor: { marker: 'A', label: 'AUDITOR', cls: 'text-amber-700' },
+    defi: { marker: 'D', label: 'ANALYST', cls: 'text-emerald-700' },
+    gas: { marker: 'G', label: 'GAS', cls: 'text-orange-600' },
+    scanner: { marker: 'S', label: 'SCANNER', cls: 'text-red-600' },
+    decoder: { marker: 'T', label: 'DECODER', cls: 'text-indigo-600' },
+    abi: { marker: 'I', label: 'ABI', cls: 'text-violet-600' },
+    yield: { marker: 'Y', label: 'YIELD', cls: 'text-teal-600' },
+    unknown: { marker: '?', label: 'UNKNOWN', cls: 'text-muted-foreground' },
+};
+
+export const STATUS_TERMINAL: Record<MeshNode['status'], { marker: string; cls: string }> = {
+    online: { marker: '[● ONLINE]', cls: 'text-green-600' },
+    selected: { marker: '[◉ SELECTED]', cls: 'text-primary text-glow' },
+    used: { marker: '[◌ USED]', cls: 'text-sky-600' },
+    failed: { marker: '[✗ FAILED]', cls: 'text-red-600' },
+};
+
+export const TREND_STYLE: Record<'up' | 'down' | 'stable', { marker: string; cls: string }> = {
+    up: { marker: '↑', cls: 'text-green-700' },
+    down: { marker: '↓', cls: 'text-red-700' },
+    stable: { marker: '→', cls: 'text-muted-foreground' },
+};
+
+/* ── Helpers ── */
+
+function parseTrend(value: unknown): 'up' | 'down' | 'stable' {
+    if (value === 'up' || value === 'down') return value;
+    return 'stable';
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+    return value && typeof value === 'object' ? (value as Record<string, unknown>) : null;
+}
+
+function readLastObjectData(events: AgentEvent[], type: string): Record<string, unknown> | undefined {
+    const matched = [...events].reverse().find((e) => e.type === type && typeof e.data === 'object');
+    return matched?.data && typeof matched.data === 'object' ? (matched.data as Record<string, unknown>) : undefined;
+}
+
+function toTitle(id: string): string {
+    return id.replace(/-v\d+$/i, '').replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+export function classifyServiceKind(input: { taskType?: string; id?: string }): AgentKind {
+    const t = input.taskType?.toLowerCase() ?? '';
+    const id = input.id?.toLowerCase() ?? '';
+    if (t.includes('audit') || id.includes('audit')) return 'auditor';
+    if (t.includes('gas') || id.includes('gas')) return 'gas';
+    if (t.includes('token') || id.includes('scanner') || id.includes('token')) return 'scanner';
+    if (t.includes('tx-decode') || id.includes('decoder') || t.includes('transaction')) return 'decoder';
+    if (t.includes('abi') || id.includes('abi')) return 'abi';
+    if (t.includes('yield') || id.includes('yield')) return 'yield';
+    if (t.includes('defi') || id.includes('defi')) return 'defi';
+    if (t.includes('content') || id.includes('writer') || t.includes('write')) return 'writer';
+    return 'unknown';
+}
+
+export function reputationTierColor(score: number): string {
+    if (score >= 3.5) return 'text-green-600';
+    if (score >= 2.5) return 'text-yellow-600';
+    if (score > 0) return 'text-red-500';
+    return 'text-muted-foreground';
+}
+
+export function cardGlowClass(node: MeshNode): string {
+    if (node.status === 'selected') return 'glow-border';
+    if (node.status === 'used') return 'border-sky-500/40';
+    if (node.status === 'failed') return 'border-red-300 opacity-60';
+    if (node.reputation >= 4.0) return 'border-green-500/40';
+    if (node.reputation > 0 && node.reputation < 2.5) return 'border-border opacity-50';
+    return 'border-border';
+}
+
+export function timeAgo(timestamp: number | undefined): string {
+    if (!timestamp || timestamp <= 0) return 'never';
+    const seconds = Math.floor(Date.now() / 1000) - timestamp;
+    if (seconds < 60) return 'just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    return `${Math.floor(seconds / 86400)}d ago`;
+}
+
+/* ── Data parsing ── */
+
+function parseReputation(raw: unknown): ServiceMeta['reputation'] | undefined {
+    if (!raw || typeof raw !== 'object') return undefined;
+    const obj = raw as Record<string, unknown>;
+    return {
+        score: typeof obj.score === 'number' ? obj.score : 0,
+        count: typeof obj.count === 'number' ? obj.count : 0,
+        trend: parseTrend(obj.trend),
+        qualified: Boolean(obj.qualified),
+        lastUsedAt: typeof obj.lastUsedAt === 'number' ? obj.lastUsedAt : undefined,
+    };
+}
+
+function parseDiscoveredServices(payload: Record<string, unknown> | undefined): ServiceMeta[] {
+    if (!payload || !Array.isArray(payload.services)) return [];
+    return payload.services
+        .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object')
+        .map((item) => ({
+            id: typeof item.id === 'string' ? item.id : '',
+            name: typeof item.name === 'string' ? item.name : undefined,
+            taskType: typeof item.taskType === 'string' ? item.taskType : undefined,
+            price: typeof item.price === 'string' ? item.price : undefined,
+            reputation: parseReputation(item.reputation),
+        }))
+        .filter((item) => item.id.length > 0);
+}
+
+export function buildMeshNodes(events: AgentEvent[], result: HunterRunResult | null): MeshNode[] {
+    const discoveredData = readLastObjectData(events, 'services_discovered');
+    const selectedData = readLastObjectData(events, 'service_selected');
+    const selectedId = typeof selectedData?.id === 'string' ? selectedData.id : undefined;
+    const selectedTaskType = typeof selectedData?.taskType === 'string' ? selectedData.taskType : undefined;
+    const usedIds = new Set(
+        events
+            .filter((event) => event.type === 'service_selected' && typeof event.data === 'object')
+            .map((event) => asRecord(event.data)?.id)
+            .filter((id): id is string => typeof id === 'string')
+    );
+    if (selectedId) usedIds.delete(selectedId);
+
+    const attempts = Array.isArray(selectedData?.attempts)
+        ? (selectedData.attempts as Array<Record<string, unknown>>)
+        : [];
+    const failedIds = new Set(
+        attempts.filter((a) => a.ok === false && typeof a.serviceId === 'string').map((a) => a.serviceId as string)
+    );
+
+    const discoveredIds = Array.isArray(discoveredData?.serviceIds)
+        ? discoveredData.serviceIds.filter((id): id is string => typeof id === 'string')
+        : [];
+    const discoveredServices = parseDiscoveredServices(discoveredData);
+    const metaById = new Map(discoveredServices.map((item) => [item.id, item]));
+
+    const ids = new Set<string>(discoveredIds);
+    if (selectedId) ids.add(selectedId);
+    if (result?.service?.id) ids.add(result.service.id);
+    for (const id of usedIds) ids.add(id);
+    if (ids.size === 0) return [];
+
+    return [...ids].map((id) => {
+        const meta = metaById.get(id);
+        const taskType =
+            (selectedId === id ? selectedTaskType : undefined) ??
+            (result?.service?.id === id ? result.service.taskType : undefined) ??
+            meta?.taskType;
+        const reputation = meta?.reputation ?? (result?.service?.id === id ? result.service.reputation : undefined);
+        return {
+            id,
+            name: (result?.service?.id === id ? result.service.name : undefined) ?? meta?.name ?? toTitle(id),
+            endpoint: selectedId === id && typeof selectedData?.endpoint === 'string'
+                ? selectedData.endpoint
+                : result?.service?.id === id ? result.service.endpoint : undefined,
+            price: selectedId === id && typeof selectedData?.price === 'string'
+                ? selectedData.price
+                : result?.service?.id === id ? result.service.price : meta?.price,
+            taskType,
+            reputation: reputation?.score ?? 0,
+            reputationCount: reputation?.count,
+            reputationTrend: reputation?.trend,
+            reputationQualified: reputation?.qualified,
+            lastUsedAt: reputation?.lastUsedAt,
+            kind: classifyServiceKind({ id, taskType }),
+            status: selectedId === id ? 'selected' : failedIds.has(id) ? 'failed' : usedIds.has(id) ? 'used' : 'online',
+        };
+    });
+}

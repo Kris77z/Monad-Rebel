@@ -1,0 +1,222 @@
+import { randomUUID } from "node:crypto";
+import { createOpenAI } from "@ai-sdk/openai";
+import { generateText, tool } from "ai";
+import type {
+  HunterRunRequestMode,
+  HunterTraceEvent,
+  HunterTraceEventType,
+  ServiceInfo
+} from "@rebel/shared";
+import { submitAutoFeedback } from "./feedback-autopilot.js";
+import { runCommanderHunter } from "./commander-flow.js";
+import { hunterConfig } from "./config.js";
+import { HunterError } from "./errors.js";
+import { runKimiReactLoop } from "./kimi-loop.js";
+import { buildMemoryPrompt } from "./memory.js";
+import { buildHunterSystemPrompt } from "./prompts.js";
+import {
+  createReactTools,
+  executeReactToolWithTrace,
+  type HunterRuntimeState
+} from "./react-tools.js";
+import { inferTaskTypeFromGoal, runScriptedHunter } from "./scripted-flow.js";
+import type { HunterRunResult, SingleHunterRunResult } from "./run-types.js";
+import { emitTrace, type HunterRunOptions } from "./trace-emitter.js";
+import { reflectAndStoreExperience } from "./tools/reflect.js";
+import { discoverServices } from "./tools/discover.js";
+import { evaluateResultTool, verifyReceiptTool } from "./tools/verify.js";
+
+export type { HunterRunOptions } from "./trace-emitter.js";
+export type { HunterTraceEvent, HunterTraceEventType } from "@rebel/shared";
+export { runScriptedHunter } from "./scripted-flow.js";
+export type { HunterRunResult } from "./run-types.js";
+
+function buildReputationPromptContext(services: ServiceInfo[]): string {
+  const withReputation = services
+    .filter((item) => item.reputation)
+    .sort((a, b) => (b.reputation?.score ?? 0) - (a.reputation?.score ?? 0));
+  if (withReputation.length === 0) {
+    return "No reputation records yet. Use price + memory and keep exploration.";
+  }
+  return withReputation
+    .slice(0, 6)
+    .map((item, index) => {
+      const rep = item.reputation!;
+      const qualifiedText = rep.qualified ? "qualified" : "insufficient-samples";
+      return `${index + 1}. ${item.id}: score=${rep.score}/5 count=${rep.count} trend=${rep.trend} (${qualifiedText}) price=${item.price}`;
+    })
+    .join("\n");
+}
+
+export async function runReactHunter(
+  goal: string,
+  options: HunterRunOptions = {}
+): Promise<SingleHunterRunResult> {
+  emitTrace(options, "run_started", { mode: "react", goal });
+
+  if (hunterConfig.llm.provider === "none" || !hunterConfig.llm.apiKey) {
+    throw new HunterError(
+      500,
+      "LLM_KEY_MISSING",
+      "KIMI_API_KEY or OPENAI_API_KEY is required for HUNTER_USE_REACT=true mode"
+    );
+  }
+
+  const inferredTaskType = inferTaskTypeFromGoal(goal);
+  const [memoryContext, reputationContext] = await Promise.all([
+    buildMemoryPrompt({
+      goal,
+      taskType: inferredTaskType
+    }),
+    (async () => {
+      try {
+        const services = await discoverServices();
+        return buildReputationPromptContext(services);
+      } catch {
+        return "Failed to load reputation context.";
+      }
+    })()
+  ]);
+  const systemPrompt = buildHunterSystemPrompt(memoryContext, reputationContext);
+  const state: HunterRuntimeState = {
+    goal,
+    missionId: randomUUID(),
+    services: []
+  };
+
+  const toolSpecs = createReactTools(state);
+  const tools = Object.fromEntries(
+    Object.entries(toolSpecs).map(([name, spec]) => [
+      name,
+      tool({
+        description: spec.description,
+        parameters: spec.schema,
+        execute: async (args) =>
+          executeReactToolWithTrace({
+            toolName: name,
+            args,
+            tools: toolSpecs,
+            state,
+            options
+          })
+      })
+    ])
+  );
+
+  const text =
+    hunterConfig.llm.provider === "kimi"
+      ? await runKimiReactLoop(goal, toolSpecs, state, options, systemPrompt)
+      : await (async () => {
+          const provider = createOpenAI({
+            apiKey: hunterConfig.llm.apiKey,
+            baseURL: hunterConfig.llm.baseURL,
+            name: hunterConfig.llm.provider,
+            compatibility: "compatible"
+          });
+          const result = await generateText({
+            model: provider.chat(hunterConfig.llm.model),
+            system: systemPrompt,
+            prompt: goal,
+            tools,
+            maxSteps: 12,
+            onStepFinish: (step) => {
+              emitTrace(options, "llm_response", {
+                stepType: step.stepType,
+                toolCalls: step.toolCalls?.length ?? 0,
+                hasText: step.text.trim().length > 0
+              });
+            }
+          });
+          return result.text;
+        })();
+
+  if (!state.service || !state.quote || !state.paymentTx || !state.execution) {
+    throw new HunterError(500, "REACT_INCOMPLETE", "ReAct flow ended without completing payment flow");
+  }
+
+  const receiptCheck = verifyReceiptTool(state.execution.receipt);
+  const evaluation = state.evaluation ?? evaluateResultTool(state.execution.result);
+  if (state.receiptVerified === undefined) {
+    emitTrace(options, "receipt_verified", {
+      isValid: receiptCheck.isValid,
+      provider: state.execution.receipt.provider,
+      requestHash: state.execution.receipt.requestHash
+    });
+  }
+  if (!state.evaluation) {
+    emitTrace(options, "evaluation_completed", evaluation);
+  }
+  if (!state.feedback) {
+    try {
+      const feedback = await submitAutoFeedback({
+        service: state.service,
+        evaluation,
+        missionId: state.missionId,
+        taskType: state.quote.paymentContext.taskType
+      });
+      emitTrace(options, "feedback_submitted", feedback);
+    } catch {
+      // Best-effort feedback should not fail the core payment run.
+    }
+  }
+  if (!state.reflection) {
+    state.reflection = await reflectAndStoreExperience({
+      missionId: state.missionId,
+      goal,
+      serviceUsed: state.service.id,
+      taskType: state.quote.paymentContext.taskType,
+      score: evaluation.score,
+      result: state.execution.result,
+      evaluationSummary: evaluation.summary
+    });
+    emitTrace(options, "tool_result", {
+      tool: "reflect",
+      result: {
+        missionId: state.reflection.missionId,
+        taskType: state.reflection.taskType,
+        score: state.reflection.score,
+        lesson: state.reflection.lesson
+      }
+    });
+  }
+
+  const runResult: HunterRunResult = {
+    goal,
+    mode: "react",
+    service: state.service,
+    quote: state.quote,
+    paymentTx: state.paymentTx,
+    execution: state.execution,
+    receiptVerified: receiptCheck.isValid,
+    evaluation,
+    reflection: state.reflection,
+    finalMessage: text
+  };
+  emitTrace(options, "run_completed", {
+    mode: runResult.mode,
+    receiptVerified: runResult.receiptVerified,
+    score: runResult.evaluation.score
+  });
+  return runResult;
+}
+
+export async function runHunter(
+  goal: string,
+  options: HunterRunOptions = {},
+  requestMode: HunterRunRequestMode = "single"
+): Promise<HunterRunResult> {
+  try {
+    if (requestMode === "commander") {
+      return await runCommanderHunter(goal, options);
+    }
+    if (hunterConfig.useReact) {
+      return await runReactHunter(goal, options);
+    }
+    return await runScriptedHunter(goal, options);
+  } catch (error) {
+    emitTrace(options, "run_failed", {
+      message: error instanceof Error ? error.message : String(error)
+    });
+    throw error;
+  }
+}

@@ -1,0 +1,218 @@
+/* =============================
+ * Terminal Theme — Dashboard Only
+ * Light Background + Deep Purple Accent
+ * ============================= */
+
+.terminal-theme {
+    --background: 240 5% 96%;
+    /* #f3f3f5 near-white */
+    --foreground: 240 6% 10%;
+    /* #19191d near-black */
+    --card: 0 0% 100%;
+    /* #ffffff pure white */
+    --card-foreground: 240 6% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 6% 10%;
+    --primary: 263 70% 50%;
+    /* #7c3aed deep purple */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 92%;
+    /* #eaeaee light gray */
+    --secondary-foreground: 240 6% 10%;
+    --muted: 240 5% 92%;
+    --muted-foreground: 240 4% 46%;
+    /* #6e6e7a mid-gray */
+    --accent: 263 70% 50%;
+    /* deep purple */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 6% 85%;
+    /* #d4d4da soft border */
+    --input: 240 6% 85%;
+    --ring: 263 70% 50%;
+    --radius: 0px;
+}
+
+/* ─── Typography: all monospace ─── */
+.terminal-theme,
+.terminal-theme h1,
+.terminal-theme h2,
+.terminal-theme h3,
+.terminal-theme h4 {
+    font-family: var(--font-geist-mono), 'JetBrains Mono', monospace;
+}
+
+/* ─── Widget label (file-extension style) ─── */
+.widget-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: hsl(var(--accent));
+    text-shadow: 0 0 6px hsl(263 70% 50% / 0.3);
+}
+
+/* ─── Glow utilities ─── */
+.glow-border {
+    box-shadow: 0 0 8px hsl(263 70% 50% / 0.2),
+        inset 0 0 6px hsl(263 70% 50% / 0.04);
+    border-color: hsl(var(--accent)) !important;
+}
+
+.text-glow {
+    text-shadow: 0 0 6px hsl(263 70% 50% / 0.4);
+}
+
+/* ─── Blinking cursor ─── */
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+.cursor-blink {
+    animation: blink 1s step-end infinite;
+}
+
+/* ─── Terminal active marker blink ─── */
+@keyframes terminal-blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.terminal-active-blink {
+    animation: terminal-blink 0.8s ease-in-out infinite;
+}
+
+/* ─── Active phase card border glow ─── */
+@keyframes phase-border-glow {
+
+    0%,
+    100% {
+        border-color: rgba(34, 197, 94, 0.25);
+        box-shadow: 0 0 4px rgba(34, 197, 94, 0.08);
+    }
+
+    50% {
+        border-color: rgba(34, 197, 94, 0.65);
+        box-shadow: 0 0 12px rgba(34, 197, 94, 0.2), inset 0 0 4px rgba(34, 197, 94, 0.05);
+    }
+}
+
+.phase-active-glow {
+    animation: phase-border-glow 1.8s ease-in-out infinite;
+}
+
+/* ─── SVG scanning dash animation ─── */
+@keyframes dash-flow {
+    to {
+        stroke-dashoffset: -20;
+    }
+}
+
+.dash-scanning {
+    stroke-dasharray: 6 4;
+    animation: dash-flow 0.8s linear infinite;
+}
+
+/* ═══════════════════════════════
+ * CRT Overlay Effects
+ * ═══════════════════════════════ */
+
+/* Scanlines — barely visible on light bg */
+.crt-scanlines {
+    background: linear-gradient(to bottom, transparent, transparent 50%,
+            rgba(0, 0, 0, 0.015) 50%, rgba(0, 0, 0, 0.015));
+    background-size: 100% 4px;
+    position: fixed;
+    inset: 0;
+    z-index: 9992;
+    pointer-events: none;
+}
+
+/* Sweeping shadow bar (inverted for light bg) */
+.crt-scanlines::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 12vh;
+    background: linear-gradient(to bottom,
+            transparent, rgba(0, 0, 0, 0.008) 50%, transparent);
+    animation: sweep 8s linear infinite;
+}
+
+@keyframes sweep {
+    0% {
+        top: -15%;
+    }
+
+    100% {
+        top: 115%;
+    }
+}
+
+/* Vignette — soft edge darkening */
+.crt-vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 9990;
+    pointer-events: none;
+    background: radial-gradient(circle, transparent 70%, rgba(0, 0, 0, 0.05) 100%);
+}
+
+/* Flicker — subtle opacity jitter */
+.crt-flicker {
+    position: fixed;
+    inset: 0;
+    z-index: 9994;
+    pointer-events: none;
+    animation: flicker 0.15s infinite;
+    background: transparent;
+}
+
+@keyframes flicker {
+    0% {
+        opacity: 0.98;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.99;
+    }
+}
+
+/* ─── Terminal scrollbar ─── */
+.terminal-theme ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.terminal-theme ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+}
+
+.terminal-theme ::-webkit-scrollbar-thumb {
+    background: hsl(var(--accent) / 0.3);
+    border-radius: 0;
+}
+
+.terminal-theme ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--accent) / 0.6);
+}

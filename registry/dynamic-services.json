@@ -1,0 +1,187 @@
+{
+  "services": [
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "service": {
+        "id": "abi-reader-v1",
+        "name": "ABI Reader & Explainer",
+        "description": "Task execution service for abi-interact",
+        "endpoint": "http://localhost:3001",
+        "taskType": "abi-interact",
+        "skills": [
+          "abi",
+          "solidity",
+          "interface",
+          "evm",
+          "monad"
+        ],
+        "price": "8000000000000000",
+        "currency": "MON",
+        "network": "eip155:10143",
+        "provider": "0x0c43428d5fB5B5529297474C521AA0697Bf708eF"
+      },
+      "updatedAt": 1772018752,
+      "expiresAt": 1772018872
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "service": {
+        "id": "auditor-v1",
+        "name": "Smart Contract Auditor",
+        "description": "Task execution service for smart-contract-audit",
+        "endpoint": "http://localhost:3001",
+        "taskType": "smart-contract-audit",
+        "skills": [
+          "solidity",
+          "vulnerability",
+          "monad",
+          "evm"
+        ],
+        "price": "20000000000000000",
+        "currency": "MON",
+        "network": "eip155:10143",
+        "provider": "0x0c43428d5fB5B5529297474C521AA0697Bf708eF"
+      },
+      "updatedAt": 1772018752,
+      "expiresAt": 1772018872
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "service": {
+        "id": "defi-analyst-v1",
+        "name": "DeFi Protocol Analyzer",
+        "description": "Task execution service for defi-analysis",
+        "endpoint": "http://localhost:3001",
+        "taskType": "defi-analysis",
+        "skills": [
+          "tvl",
+          "risk",
+          "yield",
+          "monad"
+        ],
+        "price": "15000000000000000",
+        "currency": "MON",
+        "network": "eip155:10143",
+        "provider": "0x0c43428d5fB5B5529297474C521AA0697Bf708eF"
+      },
+      "updatedAt": 1772018752,
+      "expiresAt": 1772018872
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "service": {
+        "id": "gas-optimizer-v1",
+        "name": "Gas Optimizer",
+        "description": "Task execution service for gas-optimization",
+        "endpoint": "http://localhost:3001",
+        "taskType": "gas-optimization",
+        "skills": [
+          "solidity",
+          "gas",
+          "optimization",
+          "monad",
+          "evm"
+        ],
+        "price": "12000000000000000",
+        "currency": "MON",
+        "network": "eip155:10143",
+        "provider": "0x0c43428d5fB5B5529297474C521AA0697Bf708eF"
+      },
+      "updatedAt": 1772018752,
+      "expiresAt": 1772018872
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "service": {
+        "id": "token-scanner-v1",
+        "name": "Token Risk Scanner",
+        "description": "Task execution service for token-scan",
+        "endpoint": "http://localhost:3001",
+        "taskType": "token-scan",
+        "skills": [
+          "erc20",
+          "erc721",
+          "rugpull",
+          "honeypot",
+          "monad",
+          "security"
+        ],
+        "price": "18000000000000000",
+        "currency": "MON",
+        "network": "eip155:10143",
+        "provider": "0x0c43428d5fB5B5529297474C521AA0697Bf708eF"
+      },
+      "updatedAt": 1772018752,
+      "expiresAt": 1772018872
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "service": {
+        "id": "tx-decoder-v1",
+        "name": "Transaction Decoder",
+        "description": "Task execution service for tx-decode",
+        "endpoint": "http://localhost:3001",
+        "taskType": "tx-decode",
+        "skills": [
+          "calldata",
+          "events",
+          "evm",
+          "monad",
+          "decode"
+        ],
+        "price": "8000000000000000",
+        "currency": "MON",
+        "network": "eip155:10143",
+        "provider": "0x0c43428d5fB5B5529297474C521AA0697Bf708eF"
+      },
+      "updatedAt": 1772018752,
+      "expiresAt": 1772018872
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "service": {
+        "id": "writer-v1",
+        "name": "AI Content Writer",
+        "description": "Task execution service for content-generation",
+        "endpoint": "http://localhost:3001",
+        "taskType": "content-generation",
+        "skills": [
+          "article",
+          "tweet",
+          "analysis",
+          "monad"
+        ],
+        "price": "10000000000000000",
+        "currency": "MON",
+        "network": "eip155:10143",
+        "provider": "0x0c43428d5fB5B5529297474C521AA0697Bf708eF"
+      },
+      "updatedAt": 1772018752,
+      "expiresAt": 1772018872
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "service": {
+        "id": "yield-finder-v1",
+        "name": "Yield Strategy Finder",
+        "description": "Task execution service for yield-search",
+        "endpoint": "http://localhost:3001",
+        "taskType": "yield-search",
+        "skills": [
+          "defi",
+          "yield",
+          "apy",
+          "staking",
+          "farming",
+          "monad"
+        ],
+        "price": "15000000000000000",
+        "currency": "MON",
+        "network": "eip155:10143",
+        "provider": "0x0c43428d5fB5B5529297474C521AA0697Bf708eF"
+      },
+      "updatedAt": 1772018752,
+      "expiresAt": 1772018872
+    }
+  ]
+}

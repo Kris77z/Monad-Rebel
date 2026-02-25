@@ -1,0 +1,334 @@
+{
+  "feedback": [
+    {
+      "agentId": "",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 70,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Reasonable detail for MVP task.",
+      "timestamp": 1771906848
+    },
+    {
+      "agentId": "",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 70,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Reasonable detail for MVP task.",
+      "timestamp": 1771913279
+    },
+    {
+      "agentId": "",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 70,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Reasonable detail for MVP task.",
+      "timestamp": 1771913307
+    },
+    {
+      "agentId": "",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 70,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Reasonable detail for MVP task.",
+      "timestamp": 1771913639
+    },
+    {
+      "agentId": "",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1771914045
+    },
+    {
+      "agentId": "",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1771917400
+    },
+    {
+      "agentId": "",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1771921138
+    },
+    {
+      "agentId": "",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1771921199
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 70,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Reasonable detail for MVP task.",
+      "timestamp": 1771993582
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 70,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Reasonable detail for MVP task.",
+      "timestamp": 1771993636
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 70,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Reasonable detail for MVP task.",
+      "timestamp": 1771997808
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 50,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Result is short; could be expanded.",
+      "timestamp": 1771999600
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1771999614
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 50,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Result is short; could be expanded.",
+      "timestamp": 1772000297
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1772000345
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1772000399
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1772000460
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1772008833
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 50,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Result is short; could be expanded.",
+      "timestamp": 1772009807
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1772009861
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1772009926
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1772010035
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 50,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Result is short; could be expanded.",
+      "timestamp": 1772011461
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1772011511
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 70,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Reasonable detail for MVP task.",
+      "timestamp": 1772011552
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1772011642
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1772017403
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1772017575
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1772017690
+    },
+    {
+      "agentId": "10143:0x0c43428d5fb5b5529297474c521aa0697bf708ef",
+      "reviewer": "0x028a19B9Cf135f8D38c04B5a04B1A67D71e1Fdb3",
+      "value": 90,
+      "tags": [
+        "auto",
+        "delivery"
+      ],
+      "text": "Detailed and high-signal output.",
+      "timestamp": 1772017774
+    }
+  ]
+}

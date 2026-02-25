@@ -1,0 +1,16 @@
+{
+  "id": "writer-v1",
+  "name": "AI Content Writer",
+  "taskTypes": ["content-generation", "write"],
+  "skills": ["article", "tweet", "analysis", "monad"],
+  "priceWei": "10000000000000000",
+  "output": {
+    "type": "text"
+  },
+  "llm": {
+    "temperature": 0.7
+  },
+  "fallback": {
+    "summary": "Generate concise Monad-related writing from task input."
+  }
+}
