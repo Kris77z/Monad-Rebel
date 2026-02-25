@@ -31,3 +31,6 @@ pnpm-debug.log*
 # Vendored reference repositories (large + nested git history)
 reference_code/
 reference_code/**/.git/
+
+# Local-only docs
+docs/

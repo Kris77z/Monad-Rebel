@@ -11,7 +11,7 @@ Rebel Agent Mesh 构建了一个让 AI Agent **自主发现、决策、支付、
 - **Track 1**：x402-inspired 支付协议，Monad 作为结算层
 - **Track 2**：Hunter Agent 采用 ReAct 模式自主决策，具备强执行能力的 Agent 工作流
 
-## 📌 当前状态（2026-02-25）
+## 📌 当前能力
 
 ### 后端
 - ✅ 完整闭环：发现服务 → 报价 → 链上支付 → 执行 → Receipt 验签
@@ -145,7 +145,7 @@ monad-rebel/
 ├── shared/              # 共享类型定义与工具函数
 ├── registry/            # 静态服务注册表（JSON fallback）
 ├── scripts/             # 启动与演示脚本
-└── docs/                # 项目文档
+└── ...                  # 其他本地辅助文件
 ```
 
 ## 🔗 API 端点
@@ -176,20 +176,6 @@ monad-rebel/
 | POST | `/services/register` | 注册服务（Writer 自动调用） |
 | GET | `/agents` | 列出已注册 Agent |
 | POST | `/agents/register` | 注册 Agent 身份（Onboarding 调用） |
-
-## 📖 文档索引
-
-- [完整方案（Plan）](docs/plan.md) — 项目目标、MVP 边界、赛道匹配
-- [架构设计（Architecture）](docs/architecture.md) — 模块设计、协议、数据结构
-- [开发指南（Development）](docs/development.md) — 开发阶段、任务分解、Checklist
-- [Agent Evolution（执行记录）](docs/agent-evolution-plan.md) — 多技能 + 记忆系统落地记录
-- [实施计划 v2](docs/implementation-plan-v2.md) — 全模块实施进度与优先级
-- [前端应用策略](docs/frontend-application-strategy.md) — 应用层优先 + Infra 可解释
-- [前端流式契约](docs/frontend-streaming.md) — SSE 事件协议与接入示例
-- [Commander V2 路线图](docs/commander-v2-roadmap.md) — ReAct + budget + 动态 phase 落地进度
-- [Commander 模式设计](docs/commander-mode.md) — 指挥官模式架构与实现说明
-- [前端设计理念](docs/frontend-design-concept.md) — 设计理念与视觉方向
-- [闭环流程图](docs/run-flow-graph.md) — 端到端时序、状态机、证明链
 
 ## 📜 License
 
