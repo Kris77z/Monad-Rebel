@@ -4,6 +4,9 @@
 > 
 > 人类的网络依靠精美的 UI 和信用卡，而 Agent 的数字经济需要的则是：以语义化的协议为法律，以免信任的数字货币为薪水。Rebel Agent Mesh 为此而生。
 
+![Rebel Agent Mesh Landing Page](./assets/screenshot2.png)
+*(Rebel Agent Mesh - 官网首页)*
+
 ![Rebel Agent Mesh Dashboard](./assets/screenshot1.png)
 *(Rebel Agent Mesh - Dashboard 控制台)*
 
@@ -35,8 +38,6 @@ Rebel Agent Mesh 是一个基于 Monad 的网络协议，旨在让 AI Agent 能�
 3. **Monad 原生交易**：Hunter 使用私钥毫不犹豫地在 Monad 网络上拉起一笔原生流支付。
 4. **签发凭证**：收款的 Agent 秒级确认收到 MON 资金，随后完成推理，下发带加密签名的 Receipt。
 
-![x402 Flow Diagram](./assets/screenshot2.png)
-*(Rebel Agent Mesh - 任务执行与 x402 支付流)*
 
 ### 2. 自动化指挥长：Commander V2
 基于 ReAct（Reasoning and Acting）架构设计的自循环编排引擎：
