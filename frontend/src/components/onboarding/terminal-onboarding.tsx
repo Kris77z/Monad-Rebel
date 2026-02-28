@@ -114,13 +114,23 @@ export function TerminalOnboarding({ onComplete }: Props) {
             });
             if (!res.ok) throw new Error(t('onboarding.error.httpStatus', { status: res.status }));
             localStorage.setItem('rebel_agent_profile', JSON.stringify({ name: agentName, walletAddress: walletAddr }));
-            pushLines([
-                { text: '✓ ████████████████████ 100%', style: 'ok' },
-                { text: t('onboarding.terminal.registered', { name: agentName }), style: 'ok' },
-                { text: t('onboarding.terminal.readyForDeployment'), style: 'ok' },
-                { text: '', style: 'out' },
-            ], 'enter', t('onboarding.terminal.prompt.launchDashboard'));
-            setPhase('done');
+
+            if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
+                pushLines([
+                    { text: '✓ ████████████████████ 100%', style: 'ok' },
+                    { text: '', style: 'out' },
+                    { text: t('onboarding.terminal.demoModeNotice'), style: 'accent' },
+                ]);
+                setPhase('done');
+            } else {
+                pushLines([
+                    { text: '✓ ████████████████████ 100%', style: 'ok' },
+                    { text: t('onboarding.terminal.registered', { name: agentName }), style: 'ok' },
+                    { text: t('onboarding.terminal.readyForDeployment'), style: 'ok' },
+                    { text: '', style: 'out' },
+                ], 'enter', t('onboarding.terminal.prompt.launchDashboard'));
+                setPhase('done');
+            }
         } catch (err) {
             pushLines([
                 { text: `✗ ${err instanceof Error ? err.message : t('onboarding.error.registerFailed')}`, style: 'err' },
