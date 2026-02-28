@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Halant } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
+import { LocaleProvider } from "@/components/i18n/locale-provider";
 import "./globals.css";
 
 const halant = Halant({
@@ -26,7 +27,7 @@ export default function RootLayout({
       <body
         className={`${halant.variable} ${GeistSans.variable} ${GeistMono.variable} antialiased bg-background text-foreground`}
       >
-        {children}
+        <LocaleProvider>{children}</LocaleProvider>
       </body>
     </html>
   );

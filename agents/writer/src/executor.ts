@@ -1,5 +1,11 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
+import {
+  DEFAULT_LANGUAGE_CODE,
+  buildOutputLanguageInstruction,
+  localizeByLocale,
+  type LanguageCode
+} from "@rebel/shared";
 import { WriterError } from "./errors.js";
 import { writerConfig } from "./config.js";
 import { resolveSkillForTaskType, type LoadedSkill } from "./skill-loader.js";
@@ -30,10 +36,18 @@ function normalizeSkillOutput(skill: LoadedSkill, output: string): string {
 }
 
 function buildFallbackResult(
-  input: { taskType: string; taskInput: string },
+  input: { taskType: string; taskInput: string; locale: LanguageCode },
   skill: LoadedSkill,
   reason: string
 ): string {
+  const fallbackSummary =
+    skill.config.fallback?.summary && input.locale === "en-US"
+      ? skill.config.fallback.summary
+      : localizeByLocale(input.locale, {
+          en: "Monad is a high-performance EVM-compatible L1 focused on low-latency execution and high throughput.",
+          zh: "Monad 是一个高性能、兼容 EVM 的 L1，重点在于低延迟执行和高吞吐。"
+        });
+
   if (skill.config.output.type === "json") {
     return JSON.stringify(
       {
@@ -41,7 +55,10 @@ function buildFallbackResult(
         fallback: {
           taskType: skill.canonicalTaskType,
           serviceId: skill.config.id,
-          reason
+          reason: localizeByLocale(input.locale, {
+            en: reason,
+            zh: `回退执行：${reason}`
+          })
         }
       },
       null,
@@ -50,20 +67,45 @@ function buildFallbackResult(
   }
 
   return [
-    `Service: ${skill.config.id}`,
-    `TaskType: ${skill.canonicalTaskType}`,
-    `Fallback reason: ${reason}`,
-    `Task: ${input.taskInput.trim()}`,
+    localizeByLocale(input.locale, {
+      en: `Service: ${skill.config.id}`,
+      zh: `服务: ${skill.config.id}`
+    }),
+    localizeByLocale(input.locale, {
+      en: `TaskType: ${skill.canonicalTaskType}`,
+      zh: `任务类型: ${skill.canonicalTaskType}`
+    }),
+    localizeByLocale(input.locale, {
+      en: `Fallback reason: ${reason}`,
+      zh: `回退原因: ${reason}`
+    }),
+    localizeByLocale(input.locale, {
+      en: `Task: ${input.taskInput.trim()}`,
+      zh: `任务: ${input.taskInput.trim()}`
+    }),
     "",
-    skill.config.fallback?.summary ??
-    "Monad is a high-performance EVM-compatible L1 focused on low-latency execution and high throughput."
+    fallbackSummary
+  ].join("\n");
+}
+
+function buildWriterSystemPrompt(skill: LoadedSkill, locale: LanguageCode): string {
+  return [
+    skill.prompt,
+    "",
+    "Output language rules:",
+    buildOutputLanguageInstruction({
+      locale,
+      outputType: skill.config.output.type
+    })
   ].join("\n");
 }
 
 export async function executeTask(input: {
   taskType: string;
   taskInput: string;
+  locale?: LanguageCode;
 }): Promise<string> {
+  const locale = input.locale ?? DEFAULT_LANGUAGE_CODE;
   const normalizedTask = input.taskInput.trim();
   if (!normalizedTask) {
     throw new WriterError(400, "INVALID_PAYLOAD", "taskInput is required");
@@ -75,7 +117,8 @@ export async function executeTask(input: {
     return buildFallbackResult(
       {
         taskType: normalizedTaskType,
-        taskInput: normalizedTask
+        taskInput: normalizedTask,
+        locale
       },
       skill,
       "No LLM API key configured (KIMI_API_KEY / OPENAI_API_KEY)"
@@ -92,8 +135,12 @@ export async function executeTask(input: {
 
     const { text } = await generateText({
       model: provider.chat(writerConfig.llm.model),
-      system: skill.prompt,
-      prompt: `Task type: ${normalizedTaskType}\nTask input: ${normalizedTask}`,
+      system: buildWriterSystemPrompt(skill, locale),
+      prompt: [
+        `Task type: ${normalizedTaskType}`,
+        `Requested locale: ${locale}`,
+        `Task input: ${normalizedTask}`
+      ].join("\n"),
       // Kimi models only accept temperature=1; override any skill-level config
       temperature:
         writerConfig.llm.provider === "kimi" ? 1 : (skill.config.llm?.temperature ?? undefined)
@@ -104,7 +151,8 @@ export async function executeTask(input: {
     return buildFallbackResult(
       {
         taskType: normalizedTaskType,
-        taskInput: normalizedTask
+        taskInput: normalizedTask,
+        locale
       },
       skill,
       error instanceof Error ? error.message : String(error)

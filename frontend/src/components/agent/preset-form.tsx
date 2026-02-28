@@ -1,5 +1,6 @@
 'use client';
 
+import { useI18n } from '@/components/i18n/locale-provider';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -12,46 +13,68 @@ export interface PresetParam {
 }
 
 export interface Preset {
+    id: string;
     label: string;
     /** Goal text. Use {paramKey} as placeholder for params. */
     goal: string;
     /** If defined, clicking this preset opens the inline form instead of filling directly */
     params?: PresetParam[];
     commander?: boolean;
+    aliases: string[];
 }
+
+type Translator = (key: string, variables?: Record<string, string | number>) => string;
 
 /* ─── Preset data ─── */
 
-export const PRESETS: Preset[] = [
-    /* ── Single-agent ── */
-    {
-        label: '// write',
-        goal: 'Write a concise analysis of Monad parallel execution and why it matters for on-chain AI agents.',
-    },
-    {
-        label: '// audit',
-        goal: 'Audit the contract {address} for loss-of-funds vulnerabilities: check reentrancy, access control, and unchecked returns.',
-        params: [{ key: 'address', label: 'Contract', placeholder: '0x... or contract name' }],
-    },
-    /* ── Commander missions ── */
-    {
-        label: '// full-audit',
-        goal: 'Perform a full security review of the contract {address}: first audit the Solidity code for vulnerabilities, then scan for rug-pull signals, then optimize gas usage, and finally write a comprehensive security report.',
-        params: [{ key: 'address', label: 'Contract', placeholder: '0x... or contract name' }],
-        commander: true,
-    },
-    {
-        label: '// token-report',
-        goal: 'Generate an investment report for {token}: first scan the contract for risks, then analyze its DeFi ecosystem potential, and write a final investment thesis with risk-reward analysis.',
-        params: [{ key: 'token', label: 'Token', placeholder: 'token name or 0x address' }],
-        commander: true,
-    },
-    {
-        label: '// defi-strategy',
-        goal: 'Build a DeFi strategy on Monad: first analyze the current yield landscape, then scan the top protocol tokens for safety, and produce a written portfolio allocation plan.',
-        commander: true,
-    },
-];
+export function compilePresetGoal(preset: Preset, values: Record<string, string>): string {
+    let goal = preset.goal;
+    for (const p of preset.params ?? []) {
+        goal = goal.replaceAll(`{${p.key}}`, (values[p.key] ?? '').trim());
+    }
+    return goal;
+}
+
+export function buildPresets(t: Translator): Preset[] {
+    return [
+        {
+            id: 'write',
+            label: t('preset.command.write'),
+            goal: t('preset.goal.write'),
+            aliases: ['// write', '// 写作'],
+        },
+        {
+            id: 'audit',
+            label: t('preset.command.audit'),
+            goal: t('preset.goal.audit', { address: '{address}' }),
+            params: [{ key: 'address', label: t('preset.param.contract'), placeholder: t('preset.placeholder.contract') }],
+            aliases: ['// audit', '// 审计'],
+        },
+        {
+            id: 'full-audit',
+            label: t('preset.command.fullAudit'),
+            goal: t('preset.goal.fullAudit', { address: '{address}' }),
+            params: [{ key: 'address', label: t('preset.param.contract'), placeholder: t('preset.placeholder.contract') }],
+            commander: true,
+            aliases: ['// full-audit', '// 全审计'],
+        },
+        {
+            id: 'token-report',
+            label: t('preset.command.tokenReport'),
+            goal: t('preset.goal.tokenReport', { token: '{token}' }),
+            params: [{ key: 'token', label: t('preset.param.token'), placeholder: t('preset.placeholder.token') }],
+            commander: true,
+            aliases: ['// token-report', '// 代币报告'],
+        },
+        {
+            id: 'defi-strategy',
+            label: t('preset.command.defiStrategy'),
+            goal: t('preset.goal.defiStrategy'),
+            commander: true,
+            aliases: ['// defi-strategy', '// defi策略', '// DeFi策略'],
+        },
+    ];
+}
 
 /* ─── Inline parameter form ─── */
 
@@ -62,6 +85,7 @@ interface PresetFormProps {
 }
 
 export function PresetForm({ preset, onSubmit, onCancel }: PresetFormProps) {
+    const { t } = useI18n();
     const [values, setValues] = useState<Record<string, string>>({});
     const firstRef = useRef<HTMLInputElement>(null);
 
@@ -71,17 +95,14 @@ export function PresetForm({ preset, onSubmit, onCancel }: PresetFormProps) {
 
     const handleSubmit = () => {
         if (!canSubmit) return;
-        let goal = preset.goal;
-        for (const p of preset.params ?? []) {
-            goal = goal.replaceAll(`{${p.key}}`, values[p.key].trim());
-        }
+        const goal = compilePresetGoal(preset, values);
         onSubmit(goal, Boolean(preset.commander));
     };
 
     return (
         <AnimatePresence>
             <motion.div
-                key={preset.label}
+                key={preset.id}
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
@@ -105,14 +126,14 @@ export function PresetForm({ preset, onSubmit, onCancel }: PresetFormProps) {
                     ))}
                     <div className="flex justify-end gap-3 text-[10px]">
                         <button onClick={onCancel} className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
-                            Cancel
+                            {t('preset.cancel')}
                         </button>
                         <button
                             onClick={handleSubmit}
                             disabled={!canSubmit}
                             className="text-primary hover:text-glow cursor-pointer transition-colors disabled:opacity-30"
                         >
-                            Execute ⟩
+                            {t('preset.execute')} ⟩
                         </button>
                     </div>
                 </div>

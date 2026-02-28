@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { GoalInput } from '@/components/agent/goal-input';
+import { useI18n } from '@/components/i18n/locale-provider';
+import { LocaleSwitcher } from '@/components/i18n/locale-switcher';
 import { ChainStatusBar } from '@/components/layout/chain-status-bar';
 import { AgentMeshPanel } from '@/components/panels/agent-mesh-panel';
 import { MyAgentPanel, type MyAgentStatus } from '@/components/panels/my-agent-panel';
@@ -42,9 +44,9 @@ function extractMission(events: AgentEvent[]): string | undefined {
 
 /* ─── Mobile tab constants ─── */
 const TABS = [
-  { key: 'agent', label: 'agent.sys' },
-  { key: 'mission', label: 'mission.log' },
-  { key: 'mesh', label: 'mesh.net' },
+  { key: 'agent', labelKey: 'dashboard.tab.agent' },
+  { key: 'mission', labelKey: 'dashboard.tab.mission' },
+  { key: 'mesh', labelKey: 'dashboard.tab.mesh' },
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];
@@ -52,6 +54,7 @@ type TabKey = (typeof TABS)[number]['key'];
 /* ─── Page ─── */
 
 export default function DashboardPage() {
+  const { t } = useI18n();
   const { status, events, result, error, startRun } = useAgentStream();
   const { hunter, loading: idLoading, hunterError, refresh } = useAgentIdentity();
   const { profile, loading: profileLoading, error: profileError, mutate: mutateProfile } = useHunterProfile();
@@ -154,10 +157,10 @@ export default function DashboardPage() {
             <button
               onClick={() => setHistoryOpen(true)}
               className="flex items-center gap-1 hover:text-primary hover:text-glow transition-colors cursor-pointer"
-              title="Mission history"
+              title={t('dashboard.historyTooltip')}
             >
               <History className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">history</span>
+              <span className="hidden sm:inline">{t('dashboard.history')}</span>
               {history.length > 0 && (
                 <span className="text-[9px] text-primary">{history.length}</span>
               )}
@@ -165,10 +168,11 @@ export default function DashboardPage() {
             <span className="text-border">│</span>
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="hidden sm:inline">Monad Testnet</span>
+              <span className="hidden sm:inline">{t('dashboard.network')}</span>
             </span>
             <span className="text-border">│</span>
-            <span className="text-primary text-glow">{status}</span>
+            <LocaleSwitcher />
+            <span className="text-primary text-glow">{t(`dashboard.status.${status}`)}</span>
           </div>
         </div>
       </header>
@@ -184,7 +188,7 @@ export default function DashboardPage() {
               : 'text-muted-foreground hover:text-foreground'
               }`}
           >
-            {tab.label}
+            {t(tab.labelKey)}
           </button>
         ))}
       </div>

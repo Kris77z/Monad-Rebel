@@ -2,11 +2,13 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Loader2, Send, Zap } from 'lucide-react';
+import { useI18n } from '@/components/i18n/locale-provider';
 import type { RunRequestMode } from '@/hooks/use-agent-stream';
-import { PRESETS, PresetForm, type Preset } from './preset-form';
+import type { LanguageCode } from '@/types/agent';
+import { buildPresets, compilePresetGoal, PresetForm, type Preset } from './preset-form';
 
 interface GoalInputProps {
-    onRun: (goal: string, mode?: RunRequestMode) => void;
+    onRun: (goal: string, mode?: RunRequestMode, locale?: LanguageCode) => void;
     isLoading?: boolean;
     /** Externally injected goal (e.g. from history) */
     externalGoal?: string;
@@ -17,6 +19,8 @@ const MAX_ROWS = 5;
 const LINE_HEIGHT = 20; // px per row
 
 export function GoalInput({ onRun, isLoading, externalGoal }: GoalInputProps) {
+    const { locale, t } = useI18n();
+    const presets = buildPresets(t);
     const [goal, setGoal] = useState('');
     const [commanderMode, setCommanderMode] = useState(true);
     const [activePreset, setActivePreset] = useState<Preset | null>(null);
@@ -42,7 +46,12 @@ export function GoalInput({ onRun, isLoading, externalGoal }: GoalInputProps) {
     const handleSubmit = () => {
         const trimmed = goal.trim();
         if (trimmed && !isLoading) {
-            onRun(trimmed, commanderMode ? 'commander' : 'single');
+            const expandedPreset = expandPresetCommand(trimmed, presets);
+            onRun(
+                expandedPreset?.goal ?? trimmed,
+                expandedPreset?.mode ?? (commanderMode ? 'commander' : 'single'),
+                locale
+            );
             setGoal('');
             if (textareaRef.current) {
                 textareaRef.current.style.height = `${LINE_HEIGHT}px`;
@@ -66,7 +75,7 @@ export function GoalInput({ onRun, isLoading, externalGoal }: GoalInputProps) {
     const handlePresetClick = (preset: Preset) => {
         if (preset.params && preset.params.length > 0) {
             // Toggle form: clicking same preset closes it
-            setActivePreset((prev) => (prev?.label === preset.label ? null : preset));
+            setActivePreset((prev) => (prev?.id === preset.id ? null : preset));
         } else {
             // Direct fill — no params needed
             setGoal(preset.goal);
@@ -90,12 +99,12 @@ export function GoalInput({ onRun, isLoading, externalGoal }: GoalInputProps) {
         <div className="space-y-2">
             {/* Preset commands */}
             <div className="flex flex-wrap gap-2">
-                {PRESETS.map((p) => {
+                {presets.map((p) => {
                     const needsParams = p.params && p.params.length > 0;
-                    const isActive = activePreset?.label === p.label;
+                    const isActive = activePreset?.id === p.id;
                     return (
                         <button
-                            key={p.label}
+                            key={p.id}
                             onClick={() => handlePresetClick(p)}
                             disabled={isLoading}
                             className={`px-2 py-0.5 text-[11px] border transition-all disabled:opacity-30 cursor-pointer ${isActive
@@ -110,6 +119,9 @@ export function GoalInput({ onRun, isLoading, externalGoal }: GoalInputProps) {
                     );
                 })}
             </div>
+            <p className="text-[10px] text-muted-foreground/70">
+                {t('goal.commandHint')}
+            </p>
 
             {/* Inline parameter form (only shown when a preset with params is active) */}
             {activePreset && activePreset.params && (
@@ -131,10 +143,10 @@ export function GoalInput({ onRun, isLoading, externalGoal }: GoalInputProps) {
                         }`}
                 >
                     <Zap className="w-2.5 h-2.5" />
-                    {commanderMode ? 'COMMANDER' : 'SINGLE'}
+                    {commanderMode ? t('goal.mode.commander') : t('goal.mode.single')}
                 </button>
                 {commanderMode && (
-                    <span className="text-[10px] text-amber-500/70">multi-phase mission</span>
+                    <span className="text-[10px] text-amber-500/70">{t('goal.mode.commanderHint')}</span>
                 )}
             </div>
 
@@ -143,7 +155,7 @@ export function GoalInput({ onRun, isLoading, externalGoal }: GoalInputProps) {
                 <span className={`text-sm text-glow shrink-0 pb-0.5 ${commanderMode ? 'text-amber-400' : 'text-primary'}`}>❯</span>
                 <textarea
                     ref={textareaRef}
-                    placeholder="describe your mission..."
+                    placeholder={t('goal.placeholder')}
                     value={goal}
                     onChange={handleChange}
                     onKeyDown={handleKeyDown}
@@ -155,7 +167,7 @@ export function GoalInput({ onRun, isLoading, externalGoal }: GoalInputProps) {
                 {isLoading ? (
                     <span className="flex items-center gap-1.5 text-xs text-primary text-glow shrink-0 pb-0.5">
                         <Loader2 className="w-3 h-3 animate-spin" />
-                        running...
+                        {t('goal.running')}
                     </span>
                 ) : (
                     <button
@@ -169,4 +181,45 @@ export function GoalInput({ onRun, isLoading, externalGoal }: GoalInputProps) {
             </div>
         </div>
     );
+}
+
+function expandPresetCommand(
+    rawGoal: string,
+    presets: Preset[],
+): { goal: string; mode: RunRequestMode } | null {
+    const compact = rawGoal.trim();
+    if (!compact.startsWith('//')) {
+        return null;
+    }
+
+    for (const preset of presets) {
+        for (const alias of preset.aliases) {
+            if (compact === alias) {
+                if (preset.params && preset.params.length > 0) {
+                    return null;
+                }
+                return {
+                    goal: preset.goal,
+                    mode: preset.commander ? 'commander' : 'single',
+                };
+            }
+
+            if (!compact.startsWith(`${alias} `)) {
+                continue;
+            }
+
+            const remainder = compact.slice(alias.length).trim();
+            if (!remainder || !preset.params || preset.params.length !== 1) {
+                continue;
+            }
+
+            const [param] = preset.params;
+            return {
+                goal: compilePresetGoal(preset, { [param.key]: remainder }),
+                mode: preset.commander ? 'commander' : 'single',
+            };
+        }
+    }
+
+    return null;
 }

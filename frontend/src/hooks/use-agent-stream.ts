@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { HunterRunResult, AgentEvent, RunRequestMode } from '@/types/agent';
+import { HunterRunResult, AgentEvent, RunRequestMode, LanguageCode, DEFAULT_LANGUAGE_CODE } from '@/types/agent';
 import { apiBase } from '@/lib/api-config';
+import { useI18n } from '@/components/i18n/locale-provider';
 
 export type StreamStatus = 'IDLE' | 'RUNNING' | 'COMPLETED' | 'ERROR';
 export type { RunRequestMode } from '@/types/agent';
@@ -28,7 +29,12 @@ function toErrorMessage(value: unknown, fallback: string): string {
         : fallback;
 }
 
+function normalizeLocale(locale: string | undefined): LanguageCode {
+    return locale === 'zh-CN' ? 'zh-CN' : DEFAULT_LANGUAGE_CODE;
+}
+
 export function useAgentStream() {
+    const { t } = useI18n();
     const [state, setState] = useState<StreamState>({
         status: 'IDLE',
         events: [],
@@ -38,7 +44,11 @@ export function useAgentStream() {
 
     const esRef = useRef<EventSource | null>(null);
 
-    const startRun = (goal: string, mode: RunRequestMode = 'single') => {
+    const startRun = (
+        goal: string,
+        mode: RunRequestMode = 'single',
+        locale: LanguageCode = DEFAULT_LANGUAGE_CODE,
+    ) => {
         // Cleanup previous run
         stopRun();
 
@@ -52,7 +62,8 @@ export function useAgentStream() {
         try {
             // Connect directly to Hunter Agent for real-time SSE streaming
             // (Next.js rewrites proxy buffers the response, breaking real-time)
-            const url = `${HUNTER_SSE_URL}/run/stream?goal=${encodeURIComponent(goal)}&mode=${mode}`;
+            const resolvedLocale = normalizeLocale(locale);
+            const url = `${HUNTER_SSE_URL}/run/stream?goal=${encodeURIComponent(goal)}&mode=${mode}&locale=${encodeURIComponent(resolvedLocale)}`;
             const es = new EventSource(url);
             esRef.current = es;
 
@@ -77,7 +88,7 @@ export function useAgentStream() {
                         setState(prev => ({
                             ...prev,
                             status: 'ERROR',
-                            error: toErrorMessage(payload.data, 'Run failed')
+                            error: toErrorMessage(payload.data, t('stream.runFailed'))
                         }));
                         es.close();
                     }
@@ -101,7 +112,7 @@ export function useAgentStream() {
                     setState(prev => ({
                         ...prev,
                         status: 'ERROR',
-                        error: 'Invalid done payload'
+                        error: t('stream.invalidDonePayload')
                     }));
                 }
             });
@@ -111,7 +122,7 @@ export function useAgentStream() {
                 setState(prev => ({
                     ...prev,
                     status: 'ERROR',
-                    error: 'Connection interrupted'
+                    error: t('stream.connectionInterrupted')
                 }));
                 es.close();
             });
@@ -121,7 +132,7 @@ export function useAgentStream() {
             setState(prev => ({
                 ...prev,
                 status: 'ERROR',
-                error: err instanceof Error ? err.message : 'Failed to start stream'
+                error: err instanceof Error ? err.message : t('stream.failedToStart')
             }));
         }
     };

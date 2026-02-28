@@ -1,14 +1,17 @@
 import type { Request, Response } from "express";
 import {
+  DEFAULT_LANGUAGE_CODE,
   buildCaip2Network,
   calculateRequestHash,
   type ErrorResponse,
   type ExecuteRequest,
   type ExecuteSuccessResponse,
+  type LanguageCode,
   type PaymentRequiredResponse
 } from "@rebel/shared";
 import { writerConfig } from "./config.js";
 import { executeTask } from "./executor.js";
+import { localizeWriterError } from "./error-messages.js";
 import { asWriterError } from "./errors.js";
 import { commitPaymentTx, rollbackPaymentTx, verifyNativeTransfer } from "./payment.js";
 import { createReceipt } from "./receipt.js";
@@ -27,17 +30,25 @@ function parseExecuteRequest(raw: unknown): ExecuteRequest {
       typeof body.timestamp === "number" && Number.isFinite(body.timestamp)
         ? body.timestamp
         : undefined,
-    paymentTx: typeof body.paymentTx === "string" ? body.paymentTx : undefined
+    paymentTx: typeof body.paymentTx === "string" ? body.paymentTx : undefined,
+    locale: body.locale === "zh-CN" ? "zh-CN" : undefined
   };
 }
 
+function resolveLocale(input: ExecuteRequest): LanguageCode {
+  return input.locale ?? DEFAULT_LANGUAGE_CODE;
+}
+
 export async function executeHandler(req: Request, res: Response): Promise<void> {
+  const requestBody = parseExecuteRequest(req.body);
+  const requestLocale = resolveLocale(requestBody);
   try {
-    const body = parseExecuteRequest(req.body);
+    const body = requestBody;
     const requestedTaskType = body.taskType?.trim() || undefined;
     const skill = resolveSkillForTaskType(requestedTaskType);
     const taskType = skill.canonicalTaskType;
     const taskInput = body.taskInput ?? "";
+    const locale = requestLocale;
     const timestamp = Math.floor(body.timestamp ?? Date.now() / 1000);
     const amountWei = getSkillPriceWei(skill, writerConfig.priceWei);
 
@@ -79,7 +90,7 @@ export async function executeHandler(req: Request, res: Response): Promise<void>
     await verifyNativeTransfer(body.paymentTx);
 
     try {
-      const result = await executeTask({ taskType, taskInput });
+      const result = await executeTask({ taskType, taskInput, locale });
       const receipt = await createReceipt({ requestHash, result });
       commitPaymentTx(body.paymentTx);
 
@@ -100,11 +111,12 @@ export async function executeHandler(req: Request, res: Response): Promise<void>
     }
   } catch (error) {
     const writerError = asWriterError(error);
+    const localizedError = localizeWriterError(writerError, requestLocale ?? DEFAULT_LANGUAGE_CODE);
     const payload: ErrorResponse = {
-      code: writerError.code,
-      message: writerError.message,
-      details: writerError.details
+      code: localizedError.code,
+      message: localizedError.message,
+      details: localizedError.details
     };
-    res.status(writerError.status).json(payload);
+    res.status(localizedError.status).json(payload);
   }
 }

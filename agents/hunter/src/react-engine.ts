@@ -1,6 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, tool } from "ai";
+import {
+  DEFAULT_LANGUAGE_CODE,
+  localizeByLocale,
+} from "@rebel/shared";
 import type {
   HunterRunRequestMode,
   HunterTraceEvent,
@@ -10,6 +14,7 @@ import type {
 import { submitAutoFeedback } from "./feedback-autopilot.js";
 import { runCommanderHunter } from "./commander-flow.js";
 import { hunterConfig } from "./config.js";
+import { localizeHunterError } from "./error-messages.js";
 import { HunterError } from "./errors.js";
 import { runKimiReactLoop } from "./kimi-loop.js";
 import { buildMemoryPrompt } from "./memory.js";
@@ -52,13 +57,17 @@ export async function runReactHunter(
   goal: string,
   options: HunterRunOptions = {}
 ): Promise<SingleHunterRunResult> {
-  emitTrace(options, "run_started", { mode: "react", goal });
+  const locale = options.locale ?? DEFAULT_LANGUAGE_CODE;
+  emitTrace(options, "run_started", { mode: "react", goal, locale });
 
   if (hunterConfig.llm.provider === "none" || !hunterConfig.llm.apiKey) {
     throw new HunterError(
       500,
       "LLM_KEY_MISSING",
-      "KIMI_API_KEY or OPENAI_API_KEY is required for HUNTER_USE_REACT=true mode"
+      localizeByLocale(locale, {
+        en: "KIMI_API_KEY or OPENAI_API_KEY is required for HUNTER_USE_REACT=true mode",
+        zh: "启用 HUNTER_USE_REACT=true 时必须配置 KIMI_API_KEY 或 OPENAI_API_KEY"
+      })
     );
   }
 
@@ -77,10 +86,11 @@ export async function runReactHunter(
       }
     })()
   ]);
-  const systemPrompt = buildHunterSystemPrompt(memoryContext, reputationContext);
+  const systemPrompt = buildHunterSystemPrompt(memoryContext, reputationContext, locale);
   const state: HunterRuntimeState = {
     goal,
     missionId: randomUUID(),
+    locale,
     services: []
   };
 
@@ -131,7 +141,14 @@ export async function runReactHunter(
         })();
 
   if (!state.service || !state.quote || !state.paymentTx || !state.execution) {
-    throw new HunterError(500, "REACT_INCOMPLETE", "ReAct flow ended without completing payment flow");
+    throw new HunterError(
+      500,
+      "REACT_INCOMPLETE",
+      localizeByLocale(locale, {
+        en: "ReAct flow ended without completing payment flow",
+        zh: "ReAct 流程在完成支付链路前结束"
+      })
+    );
   }
 
   const receiptCheck = verifyReceiptTool(state.execution.receipt);
@@ -167,6 +184,7 @@ export async function runReactHunter(
       taskType: state.quote.paymentContext.taskType,
       score: evaluation.score,
       result: state.execution.result,
+      locale,
       evaluationSummary: evaluation.summary
     });
     emitTrace(options, "tool_result", {
@@ -214,9 +232,17 @@ export async function runHunter(
     }
     return await runScriptedHunter(goal, options);
   } catch (error) {
+    const localizedError =
+      error instanceof HunterError
+        ? localizeHunterError(error, options.locale ?? DEFAULT_LANGUAGE_CODE)
+        : localizeHunterError(
+            new HunterError(500, "INTERNAL_ERROR", error instanceof Error ? error.message : String(error)),
+            options.locale ?? DEFAULT_LANGUAGE_CODE
+          );
     emitTrace(options, "run_failed", {
-      message: error instanceof Error ? error.message : String(error)
+      message: localizedError.message,
+      locale: options.locale ?? DEFAULT_LANGUAGE_CODE
     });
-    throw error;
+    throw localizedError;
   }
 }

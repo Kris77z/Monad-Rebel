@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { access, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { HunterProfile } from '@/types/hunter-profile';
+import type { LanguageCode } from '@/types/agent';
 
 interface ExperienceRecord {
   missionId: string;
@@ -9,6 +10,7 @@ interface ExperienceRecord {
   taskType: string;
   score: number;
   lesson: string;
+  lessonTranslations?: Partial<Record<LanguageCode, string>>;
 }
 
 interface FeedbackRecord {
@@ -20,6 +22,8 @@ interface FeedbackRecord {
 
 const MON_WEI = BigInt('1000000000000000000');
 const FEEDBACK_SCORE_WEIGHT = 0.35;
+const DEFAULT_LOCALE: LanguageCode = 'en-US';
+const SUPPORTED_LOCALES: LanguageCode[] = ['en-US', 'zh-CN'];
 
 function toRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' ? (value as Record<string, unknown>) : null;
@@ -29,12 +33,86 @@ function safeString(value: unknown): string {
   return typeof value === 'string' ? value : '';
 }
 
+function normalizeLocale(input: string | null | undefined): LanguageCode {
+  if (typeof input !== 'string') return DEFAULT_LOCALE;
+  return SUPPORTED_LOCALES.includes(input as LanguageCode) ? (input as LanguageCode) : DEFAULT_LOCALE;
+}
+
 function safeNumber(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : Number.NaN;
 }
 
 function round1(value: number): number {
   return Math.round(value * 10) / 10;
+}
+
+function compactLesson(value: string): string {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+function stripLessonMarkdown(value: string): string {
+  return compactLesson(
+    value
+      .replace(/\*\*(.+?)\*\*/g, '$1')
+      .replace(/\*(.+?)\*/g, '$1')
+      .replace(/^#{1,4}\s+/gm, '')
+      .replace(/^-{3,}/gm, '')
+      .replace(/^[\-*]\s+/gm, '')
+      .replace(/\[(.+?)\]\(.+?\)/g, '$1')
+      .replace(/`(.+?)`/g, '$1')
+  );
+}
+
+function normalizeLessonTranslations(value: unknown): Partial<Record<LanguageCode, string>> | undefined {
+  const record = toRecord(value);
+  if (!record) return undefined;
+
+  const en = compactLesson(safeString(record['en-US']));
+  const zh = compactLesson(safeString(record['zh-CN']));
+  if (!en && !zh) {
+    return undefined;
+  }
+
+  return {
+    ...(en ? { 'en-US': en } : {}),
+    ...(zh ? { 'zh-CN': zh } : {}),
+  };
+}
+
+function selectLessonText(
+  lesson: string,
+  lessonTranslations: Partial<Record<LanguageCode, string>> | undefined,
+  locale: LanguageCode,
+): string {
+  return compactLesson(
+    lessonTranslations?.[locale]
+    ?? lessonTranslations?.[DEFAULT_LOCALE]
+    ?? lesson
+  );
+}
+
+function isLowQualityInsight(rawLesson: string): boolean {
+  const compact = stripLessonMarkdown(rawLesson);
+  if (!compact) return true;
+  if (compact.length < 12) return true;
+  if (compact.length > 170) return true;
+
+  const lowered = compact.toLowerCase();
+  const noiseMarkers = [
+    'document control',
+    'investment brief',
+    'market context',
+    'current status',
+    'executive summary format',
+    'audit report template',
+  ];
+
+  if (noiseMarkers.some((marker) => lowered.includes(marker))) {
+    return true;
+  }
+
+  const startsWithHeading = /^[A-Z0-9][A-Z0-9\s:/|-]{18,}$/.test(compact.slice(0, 36));
+  return startsWithHeading;
 }
 
 function formatWeiToMON(wei: bigint): string {
@@ -95,7 +173,14 @@ function normalizeExperience(raw: unknown): ExperienceRecord | null {
   }
   const normalized = rawScore > 10 ? rawScore / 10 : rawScore;
   const score = Math.max(0, Math.min(10, normalized));
-  return { missionId, serviceUsed, taskType, score, lesson };
+  return {
+    missionId,
+    serviceUsed,
+    taskType,
+    score,
+    lesson,
+    lessonTranslations: normalizeLessonTranslations(record.lessonTranslations),
+  };
 }
 
 function buildPriceMap(staticServices: unknown, dynamicServices: unknown): Map<string, bigint> {
@@ -310,11 +395,15 @@ function buildPreferredAgents(
 }
 
 function truncateLesson(lesson: string): string {
-  const compact = lesson.replace(/\s+/g, ' ').trim();
+  const compact = stripLessonMarkdown(lesson);
   return compact.length > 180 ? `${compact.slice(0, 177)}...` : compact;
 }
 
-function buildInsights(rawInsights: unknown, experiences: ExperienceRecord[]): HunterProfile['insights'] {
+function buildInsights(
+  rawInsights: unknown,
+  experiences: ExperienceRecord[],
+  locale: LanguageCode,
+): HunterProfile['insights'] {
   const list = Array.isArray(toRecord(rawInsights)?.insights)
     ? (toRecord(rawInsights)?.insights as unknown[])
     : [];
@@ -322,13 +411,18 @@ function buildInsights(rawInsights: unknown, experiences: ExperienceRecord[]): H
   const parsed = list
     .map((item) => {
       const record = toRecord(item);
-      const lesson = truncateLesson(safeString(record?.lesson));
+      const lesson = safeString(record?.lesson);
+      const lessonTranslations = normalizeLessonTranslations(record?.lessonTranslations);
       const count = safeNumber(record?.count);
       const updatedAt = safeNumber(record?.updatedAt);
-      if (!lesson || !Number.isFinite(count) || count <= 0) {
+      if (!lesson || !Number.isFinite(count) || count <= 0 || isLowQualityInsight(lesson)) {
         return null;
       }
-      return { lesson, count: Math.floor(count), updatedAt: Number.isFinite(updatedAt) ? updatedAt : 0 };
+      return {
+        lesson: truncateLesson(selectLessonText(lesson, lessonTranslations, locale)),
+        count: Math.floor(count),
+        updatedAt: Number.isFinite(updatedAt) ? updatedAt : 0,
+      };
     })
     .filter((item): item is { lesson: string; count: number; updatedAt: number } => Boolean(item))
     .sort((a, b) => {
@@ -342,10 +436,14 @@ function buildInsights(rawInsights: unknown, experiences: ExperienceRecord[]): H
 
   const byLesson = new Map<string, { lesson: string; count: number }>();
   for (const item of experiences) {
-    const key = item.lesson.toLowerCase().replace(/\s+/g, ' ').trim();
+    const selectedLesson = selectLessonText(item.lesson, item.lessonTranslations, locale);
+    if (isLowQualityInsight(selectedLesson)) {
+      continue;
+    }
+    const key = selectedLesson.toLowerCase().replace(/\s+/g, ' ').trim();
     const current = byLesson.get(key);
     if (!current) {
-      byLesson.set(key, { lesson: truncateLesson(item.lesson), count: 1 });
+      byLesson.set(key, { lesson: truncateLesson(selectedLesson), count: 1 });
       continue;
     }
     current.count += 1;
@@ -356,7 +454,8 @@ function buildInsights(rawInsights: unknown, experiences: ExperienceRecord[]): H
     .slice(0, 3);
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const locale = normalizeLocale(new URL(request.url).searchParams.get('locale'));
   const root = await resolveRepoRoot();
   const memoryFile = path.join(root, 'agents/hunter/memory/experience.json');
   const insightsFile = path.join(root, 'agents/hunter/memory/insights.json');
@@ -411,7 +510,7 @@ export async function GET() {
     },
     skills: buildSkills(experiences, feedbackSignals),
     preferredAgents: buildPreferredAgents(experiences, feedbackSignals),
-    insights: buildInsights(insightsRaw, experiences),
+    insights: buildInsights(insightsRaw, experiences, locale),
   };
 
   return NextResponse.json(payload);

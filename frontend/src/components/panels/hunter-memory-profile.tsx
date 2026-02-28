@@ -1,5 +1,6 @@
 'use client';
 
+import { useI18n } from '@/components/i18n/locale-provider';
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import type { HunterProfile } from '@/types/hunter-profile';
@@ -42,6 +43,12 @@ function makeAsciiBar(value: number, max: number, width = 14): string {
 
 function formatScore(score: number): string {
   return `${score.toFixed(1)}/10`;
+}
+
+function localizeTaskTypeLabel(taskType: string, t: (key: string) => string): string {
+  const key = `taskType.${taskType}`;
+  const localized = t(key);
+  return localized === key ? taskType : localized;
 }
 
 /** Strip common markdown formatting from lesson text */
@@ -91,35 +98,37 @@ function StatCell({ label, value }: { label: string; value: string | number }) {
 }
 
 function HunterStats({ profile }: { profile: HunterProfile }) {
+  const { t } = useI18n();
   const animatedScore = useCountUp(Math.round(profile.stats.avgScore * 10), 800);
   return (
     <RevealSection delay={0}>
-      <p className="text-[10px] text-muted-foreground mb-1">OVERVIEW</p>
+      <p className="text-[10px] text-muted-foreground mb-1">{t('memory.overview')}</p>
       <div className="grid grid-cols-4 gap-1 text-[10px]">
-        <StatCell label="RUNS" value={profile.stats.totalMissions} />
+        <StatCell label={t('memory.runs')} value={profile.stats.totalMissions} />
         <div className="border border-border bg-background/30 px-1.5 py-1 text-center">
-          <p className="text-muted-foreground text-[9px]">SCORE</p>
+          <p className="text-muted-foreground text-[9px]">{t('memory.score')}</p>
           <p className="text-foreground font-mono">{(animatedScore / 10).toFixed(1)}</p>
         </div>
         <div className="border border-border bg-background/30 px-1.5 py-1 text-center">
-          <p className="text-muted-foreground text-[9px]">SPENT</p>
+          <p className="text-muted-foreground text-[9px]">{t('memory.spent')}</p>
           <p className="text-foreground font-mono">{profile.stats.totalSpend}</p>
         </div>
-        <StatCell label="HIRES" value={profile.stats.totalHires} />
+        <StatCell label={t('memory.hires')} value={profile.stats.totalHires} />
       </div>
     </RevealSection>
   );
 }
 
 function SkillRadar({ skills }: { skills: HunterProfile['skills'] }) {
+  const { t } = useI18n();
   const top = skills.slice(0, 5);
   const maxCount = Math.max(1, ...top.map((item) => item.count));
 
   return (
     <RevealSection delay={0.12}>
-      <p className="text-[10px] text-muted-foreground mb-1.5">SKILL RADAR</p>
+      <p className="text-[10px] text-muted-foreground mb-1.5">{t('memory.skillRadar')}</p>
       {top.length === 0 ? (
-        <p className="text-[10px] text-muted-foreground">No historical skill data.</p>
+        <p className="text-[10px] text-muted-foreground">{t('memory.noSkills')}</p>
       ) : (
         <div className="space-y-1.5">
           {top.map((item, i) => (
@@ -131,7 +140,7 @@ function SkillRadar({ skills }: { skills: HunterProfile['skills'] }) {
               transition={{ delay: 0.12 + i * 0.06 }}
             >
               <div className="flex justify-between gap-2">
-                <span className="truncate text-foreground/90">{item.taskType}</span>
+                <span className="truncate text-foreground/90">{localizeTaskTypeLabel(item.taskType, t)}</span>
                 <span className="text-muted-foreground">{item.count} · {formatScore(item.avgScore)}</span>
               </div>
               <p className="font-mono text-[9px] tracking-tight text-primary/80">
@@ -146,11 +155,12 @@ function SkillRadar({ skills }: { skills: HunterProfile['skills'] }) {
 }
 
 function InsightsList({ insights }: { insights: HunterProfile['insights'] }) {
+  const { t } = useI18n();
   return (
     <RevealSection delay={0.36}>
-      <p className="text-[10px] text-muted-foreground mb-1.5">CORE INSIGHTS</p>
+      <p className="text-[10px] text-muted-foreground mb-1.5">{t('memory.coreInsights')}</p>
       {insights.length === 0 ? (
-        <p className="text-[10px] text-muted-foreground">No distilled lessons yet.</p>
+        <p className="text-[10px] text-muted-foreground">{t('memory.noInsights')}</p>
       ) : (
         <div className="flex flex-col space-y-1.5">
           {insights.map((insight, index) => (
@@ -162,7 +172,7 @@ function InsightsList({ insights }: { insights: HunterProfile['insights'] }) {
               transition={{ delay: 0.36 + index * 0.06 }}
             >
               <p className="text-foreground/90 leading-relaxed">&ldquo;{stripMarkdown(insight.lesson)}&rdquo;</p>
-              <p className="text-[9px] text-muted-foreground mt-0.5">Seen {insight.count} times</p>
+              <p className="text-[9px] text-muted-foreground mt-0.5">{t('memory.seenTimes', { count: insight.count })}</p>
             </motion.div>
           ))}
         </div>
@@ -174,6 +184,7 @@ function InsightsList({ insights }: { insights: HunterProfile['insights'] }) {
 /* ─── Main component ─── */
 
 export function HunterMemoryProfile({ profile, loading = false, error = null }: HunterMemoryProfileProps) {
+  const { t } = useI18n();
   if (loading && !profile) {
     return (
       <div className="space-y-2">
@@ -189,7 +200,7 @@ export function HunterMemoryProfile({ profile, loading = false, error = null }: 
   if (!profile) {
     return (
       <div className="text-[10px] text-muted-foreground">
-        {error ? `profile unavailable: ${error}` : 'profile unavailable'}
+        {error ? t('memory.unavailableWithError', { error }) : t('memory.unavailable')}
       </div>
     );
   }
@@ -197,7 +208,7 @@ export function HunterMemoryProfile({ profile, loading = false, error = null }: 
   return (
     <div className="space-y-2.5">
       {error && (
-        <span className="text-[9px] text-amber-600">stale cache</span>
+        <span className="text-[9px] text-amber-600">{t('memory.staleCache')}</span>
       )}
       <HunterStats profile={profile} />
       <SkillRadar skills={profile.skills} />

@@ -1,6 +1,8 @@
 import express from "express";
-import type { ErrorResponse, HunterRunRequestMode } from "@rebel/shared";
+import { DEFAULT_LANGUAGE_CODE } from "@rebel/shared";
+import type { ErrorResponse, HunterRunRequest, HunterRunRequestMode, LanguageCode } from "@rebel/shared";
 import { hunterConfig } from "./config.js";
+import { localizeHunterError } from "./error-messages.js";
 import { asHunterError } from "./errors.js";
 import { getHunterIdentity } from "./identity.js";
 import {
@@ -39,12 +41,18 @@ function parseRunMode(raw: unknown): HunterRunRequestMode {
   return raw === "commander" ? "commander" : "single";
 }
 
+function parseLocale(raw: unknown): LanguageCode {
+  return raw === "zh-CN" ? "zh-CN" : DEFAULT_LANGUAGE_CODE;
+}
+
 async function streamRun(req: express.Request, res: express.Response): Promise<void> {
-  const body = req.body as { goal?: string; mode?: HunterRunRequestMode } | undefined;
+  const body = req.body as HunterRunRequest | undefined;
   const queryGoal = typeof req.query.goal === "string" ? req.query.goal : undefined;
   const queryMode = typeof req.query.mode === "string" ? req.query.mode : undefined;
+  const queryLocale = typeof req.query.locale === "string" ? req.query.locale : undefined;
   const goal = body?.goal?.trim() || queryGoal?.trim() || hunterConfig.defaultGoal;
   const requestMode = parseRunMode(body?.mode ?? queryMode);
+  const locale = parseLocale(body?.locale ?? queryLocale);
 
   res.status(200);
   res.setHeader("Content-Type", "text/event-stream");
@@ -73,7 +81,8 @@ async function streamRun(req: express.Request, res: express.Response): Promise<v
     mode: hunterConfig.useReact ? "react" : "scripted",
     agentMode: hunterConfig.useReact ? "react" : "scripted",
     requestMode,
-    goal
+    goal,
+    locale
   });
 
   try {
@@ -84,7 +93,8 @@ async function streamRun(req: express.Request, res: express.Response): Promise<v
         }
         writeSseEvent(res, "trace", event);
       },
-      signal: controller.signal
+      signal: controller.signal,
+      locale
     }, requestMode);
 
     if (!closed && !res.writableEnded) {
@@ -92,10 +102,11 @@ async function streamRun(req: express.Request, res: express.Response): Promise<v
     }
   } catch (error) {
     const hunterError = asHunterError(error);
+    const localizedError = localizeHunterError(hunterError, locale);
     const payload: ErrorResponse = {
-      code: hunterError.code,
-      message: hunterError.message,
-      details: hunterError.details
+      code: localizedError.code,
+      message: localizedError.message,
+      details: localizedError.details
     };
     if (!closed && !res.writableEnded) {
       writeSseEvent(res, "error", payload);
@@ -148,19 +159,21 @@ app.get("/identity", async (_req, res) => {
 
 app.post("/run", async (req, res) => {
   try {
-    const body = req.body as { goal?: string; mode?: HunterRunRequestMode } | undefined;
+    const body = req.body as HunterRunRequest | undefined;
     const goal = body?.goal?.trim() || hunterConfig.defaultGoal;
     const requestMode = parseRunMode(body?.mode);
-    const result = await runHunter(goal, {}, requestMode);
+    const locale = parseLocale(body?.locale);
+    const result = await runHunter(goal, { locale }, requestMode);
     res.status(200).json(result);
   } catch (error) {
     const hunterError = asHunterError(error);
+    const localizedError = localizeHunterError(hunterError, parseLocale((req.body as HunterRunRequest | undefined)?.locale));
     const payload: ErrorResponse = {
-      code: hunterError.code,
-      message: hunterError.message,
-      details: hunterError.details
+      code: localizedError.code,
+      message: localizedError.message,
+      details: localizedError.details
     };
-    res.status(hunterError.status).json(payload);
+    res.status(localizedError.status).json(payload);
   }
 });
 

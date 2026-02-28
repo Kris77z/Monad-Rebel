@@ -1,5 +1,7 @@
 'use client';
 
+import { useI18n } from '@/components/i18n/locale-provider';
+import { formatLocaleNumber } from '@/lib/i18n';
 import { Blocks, Clock, Fuel, Wifi, WifiOff } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -36,16 +38,12 @@ async function fetchChainStatus(): Promise<{ blockNumber: number | null; gasGwei
     };
 }
 
-/** Format large numbers with commas */
-function formatNumber(n: number): string {
-    return n.toLocaleString('en-US');
-}
-
 /**
  * Terminal-style chain status footer.
  * Polls Monad testnet RPC for real block number & gas price.
  */
 export function ChainStatusBar() {
+    const { locale, t } = useI18n();
     const [data, setData] = useState<ChainData>({
         blockNumber: null,
         gasPrice: null,
@@ -83,8 +81,8 @@ export function ChainStatusBar() {
                     <div className="flex items-center gap-1.5">
                         <Blocks className="w-3 h-3" />
                         <span>
-                            block #<span className="text-foreground">
-                                {data.blockNumber !== null ? formatNumber(data.blockNumber) : '...'}
+                            {t('chain.block')} #<span className="text-foreground">
+                                {data.blockNumber !== null ? formatLocaleNumber(locale, data.blockNumber) : '...'}
                             </span>
                         </span>
                     </div>
@@ -95,7 +93,7 @@ export function ChainStatusBar() {
                     <div className="flex items-center gap-1.5">
                         <Fuel className="w-3 h-3" />
                         <span>
-                            gas: <span className="text-foreground">
+                            {t('chain.gas')}: <span className="text-foreground">
                                 {data.gasPrice !== null ? `${data.gasPrice} gwei` : '...'}
                             </span>
                         </span>
@@ -105,12 +103,12 @@ export function ChainStatusBar() {
                     {data.connected ? (
                         <>
                             <Wifi className="w-3 h-3 text-green-500" />
-                            <span>connected to monad testnet</span>
+                            <span>{t('chain.connected')}</span>
                         </>
                     ) : (
                         <>
                             <WifiOff className="w-3 h-3 text-red-500" />
-                            <span className="text-red-500">disconnected</span>
+                            <span className="text-red-500">{t('chain.disconnected')}</span>
                         </>
                     )}
                 </div>

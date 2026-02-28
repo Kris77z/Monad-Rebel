@@ -1,5 +1,6 @@
 import type {
   ExecuteSuccessResponse,
+  LanguageCode,
   PaymentRequiredResponse,
   ServiceInfo
 } from "@rebel/shared";
@@ -28,6 +29,7 @@ export interface QuoteAttempt {
 export interface HunterRuntimeState {
   goal: string;
   missionId: string;
+  locale: LanguageCode;
   services: ServiceInfo[];
   service?: ServiceInfo;
   requestTaskType?: string;
@@ -157,7 +159,8 @@ export function createReactTools(state: HunterRuntimeState): Record<string, Reac
         const quoteResult = await requestServiceQuoteWithFallback({
           services: candidates,
           taskType: resolvedTaskType,
-          taskInput
+          taskInput,
+          locale: state.locale
         });
         state.service = quoteResult.service;
         state.quote = quoteResult.quote;
@@ -222,7 +225,8 @@ export function createReactTools(state: HunterRuntimeState): Record<string, Reac
           paymentTx: state.paymentTx,
           taskType: state.quote.paymentContext.taskType,
           taskInput,
-          timestamp: state.quote.paymentContext.timestamp
+          timestamp: state.quote.paymentContext.timestamp,
+          locale: state.locale
         });
         return state.execution;
       }
@@ -297,6 +301,7 @@ export function createReactTools(state: HunterRuntimeState): Record<string, Reac
           taskType: state.quote.paymentContext.taskType,
           score: score ?? evaluation.score,
           result: state.execution.result,
+          locale: state.locale,
           evaluationSummary: evaluation.summary,
           lessonHint
         });

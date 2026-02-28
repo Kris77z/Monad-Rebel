@@ -45,7 +45,7 @@ export function NavHeader() {
 
                 {/* Right: CTA */}
                 <Link
-                    href="/dashboard"
+                    href="/onboarding"
                     className="bg-foreground text-background px-5 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
                 >
                     Launch App

@@ -51,16 +51,19 @@ export function useWallet() {
         return () => sub.unsubscribe();
     }, []);
 
-    const connect = useCallback(async () => {
+    const connect = useCallback(async (): Promise<boolean> => {
         setState((prev) => ({ ...prev, connecting: true }));
         try {
             const wallets = await onboard.connectWallet();
             if (wallets.length === 0) {
                 setState((prev) => ({ ...prev, connecting: false }));
+                return false;
             }
             // State will be updated by the subscription above
+            return true;
         } catch {
             setState((prev) => ({ ...prev, connecting: false }));
+            return false;
         }
     }, []);
 

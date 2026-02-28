@@ -1,5 +1,6 @@
 'use client';
 
+import { useI18n } from '@/components/i18n/locale-provider';
 import { ResultView } from '@/components/agent/result-view';
 import { cn } from '@/lib/utils';
 import type { AgentEvent, HunterRunResult } from '@/types/agent';
@@ -15,14 +16,14 @@ import { PipelineSnake } from './pipeline-snake';
 import { NarrativeBar } from './narrative-bar';
 
 /* ─── Phase definitions ─── */
-const PHASES: Array<{ id: PhaseId; label: string; icon: string }> = [
-  { id: 'thinking', label: 'THINKING', icon: '🧠' },
-  { id: 'discovery', label: 'DISCOVERY', icon: '🔍' },
-  { id: 'decision', label: 'DECISION', icon: '⚙️' },
-  { id: 'payment', label: 'PAYMENT', icon: '💰' },
-  { id: 'execution', label: 'EXECUTION', icon: '⚡' },
-  { id: 'verification', label: 'VERIFICATION', icon: '🔐' },
-  { id: 'complete', label: 'COMPLETE', icon: '🏁' },
+const PHASES: Array<{ id: PhaseId; labelKey: string; icon: string }> = [
+  { id: 'thinking', labelKey: 'timeline.phase.thinking', icon: '🧠' },
+  { id: 'discovery', labelKey: 'timeline.phase.discovery', icon: '🔍' },
+  { id: 'decision', labelKey: 'timeline.phase.decision', icon: '⚙️' },
+  { id: 'payment', labelKey: 'timeline.phase.payment', icon: '💰' },
+  { id: 'execution', labelKey: 'timeline.phase.execution', icon: '⚡' },
+  { id: 'verification', labelKey: 'timeline.phase.verification', icon: '🔐' },
+  { id: 'complete', labelKey: 'timeline.phase.complete', icon: '🏁' },
 ];
 
 /* Terminal status markers */
@@ -42,6 +43,7 @@ interface MissionTimelineProps {
 
 /* ─── Component ─── */
 export function MissionTimeline({ events, result, isRunning, hasError }: MissionTimelineProps) {
+  const { locale, t } = useI18n();
   const commanderPhases = useMemo(
     () => buildCommanderTimeline(events, result, isRunning, hasError),
     [events, result, isRunning, hasError]
@@ -90,7 +92,7 @@ export function MissionTimeline({ events, result, isRunning, hasError }: Mission
         <NarrativeBar events={events} result={result} isRunning={isRunning} hasError={hasError} />
         <div className="flex-1 border border-border bg-card flex items-center justify-center">
           <p className="text-xs text-muted-foreground">
-            awaiting mission input<span className="cursor-blink">_</span>
+            {t('timeline.awaiting')}<span className="cursor-blink">_</span>
           </p>
         </div>
       </div>
@@ -112,7 +114,7 @@ export function MissionTimeline({ events, result, isRunning, hasError }: Mission
         {/* Error banner */}
         {hasError && (
           <div className="border border-red-300 bg-red-50 p-2 text-xs text-red-700">
-            ✗ mission failed before completion
+            ✗ {t('timeline.failed')}
           </div>
         )}
 
@@ -155,9 +157,9 @@ export function MissionTimeline({ events, result, isRunning, hasError }: Mission
             >
               {/* Header line */}
               <div className="flex items-center justify-between text-xs">
-                <span>{phase.icon} {phase.label}</span>
+                <span>{phase.icon} {t(phase.labelKey)}</span>
                 <span className={cn(m.cls, phaseStatus === 'active' && 'terminal-active-blink')}>
-                  [{m.symbol} {phaseStatus.toUpperCase()}]
+                  [{m.symbol} {t(`timeline.phaseStatus.${phaseStatus}`)}]
                 </span>
               </div>
 
@@ -173,7 +175,7 @@ export function MissionTimeline({ events, result, isRunning, hasError }: Mission
                     className="overflow-hidden"
                   >
                     <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">
-                      {summaryForPhase(phase.id, phaseEvents, result, events)}
+                      {summaryForPhase(phase.id, phaseEvents, result, events, locale)}
                     </p>
                   </motion.div>
                 )}

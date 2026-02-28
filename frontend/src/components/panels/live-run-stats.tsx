@@ -1,6 +1,8 @@
 'use client';
 
+import { useI18n } from '@/components/i18n/locale-provider';
 import { formatMON } from '@/lib/format';
+import { formatDuration } from '@/lib/i18n';
 import { useTypewriter } from '@/hooks/use-typewriter';
 import { BudgetBar } from './payment-effects';
 
@@ -30,15 +32,16 @@ export function LiveRunStats({
     status, spendWei, budgetWei, budgetSpentWei,
     hasBudget, txCount, elapsed, mission,
 }: LiveRunStatsProps) {
+    const { locale, t } = useI18n();
     const typedGoal = useTypewriter(mission, 20);
 
     return (
         <div className="space-y-1.5 text-xs">
-            <p className="text-[10px] text-muted-foreground">LIVE RUN</p>
+            <p className="text-[10px] text-muted-foreground">{t('live.title')}</p>
 
             {/* Status */}
             <div className="flex justify-between">
-                <span className="text-muted-foreground">STATUS</span>
+                <span className="text-muted-foreground">{t('live.status')}</span>
                 <span className={status.cls}>
                     [{status.symbol} {status.label}]
                 </span>
@@ -49,25 +52,25 @@ export function LiveRunStats({
                 <BudgetBar spentWei={budgetSpentWei ?? spendWei} maxWei={budgetWei} />
             ) : (
                 <div className="flex justify-between">
-                    <span className="text-muted-foreground">SPENT</span>
+                    <span className="text-muted-foreground">{t('live.spent')}</span>
                     <span>{formatMON(spendWei)} MON</span>
                 </div>
             )}
 
             {/* TX count + Duration on same row to save space */}
             <div className="flex justify-between">
-                <span className="text-muted-foreground">TX_COUNT</span>
+                <span className="text-muted-foreground">{t('live.txCount')}</span>
                 <span>{txCount}</span>
             </div>
             <div className="flex justify-between">
-                <span className="text-muted-foreground">DURATION</span>
-                <span>{elapsed === null ? '--' : `${elapsed}s`}</span>
+                <span className="text-muted-foreground">{t('live.duration')}</span>
+                <span>{formatDuration(locale, elapsed)}</span>
             </div>
 
             {/* Mission goal — compact inline */}
             {mission && (
                 <div className="pt-1.5 border-t border-border/50">
-                    <p className="text-[10px] text-muted-foreground mb-0.5">GOAL</p>
+                    <p className="text-[10px] text-muted-foreground mb-0.5">{t('live.goal')}</p>
                     <p className="text-[11px] text-foreground/80 leading-relaxed line-clamp-3">
                         &gt; {typedGoal}<span className="cursor-blink">_</span>
                     </p>

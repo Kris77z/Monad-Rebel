@@ -1,4 +1,5 @@
 export * from "./types.js";
+export * from "./locale.js";
 export * from "./utils.js";
 export * from "./agent-registry.js";
 export * from "./feedback-store.js";

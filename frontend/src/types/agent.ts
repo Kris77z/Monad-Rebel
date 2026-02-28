@@ -11,6 +11,9 @@ export interface AgentEvent {
   data?: unknown;
 }
 
+export type LanguageCode = 'zh-CN' | 'en-US';
+export const DEFAULT_LANGUAGE_CODE: LanguageCode = 'en-US';
+
 export type RunRequestMode = 'single' | 'commander';
 
 export type ServiceTaskType =

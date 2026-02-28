@@ -1,8 +1,9 @@
-import type { HunterTraceEvent, HunterTraceEventType } from "@rebel/shared";
+import type { HunterTraceEvent, HunterTraceEventType, LanguageCode } from "@rebel/shared";
 
 export interface HunterRunOptions {
   onEvent?: (event: HunterTraceEvent) => void;
   signal?: AbortSignal;
+  locale?: LanguageCode;
 }
 
 export function emitTrace(

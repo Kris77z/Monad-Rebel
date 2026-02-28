@@ -1,7 +1,9 @@
 import type { AgentEvent, HunterRunResult } from '@/types/agent';
+import type { LanguageCode } from '@/types/agent';
 import type { PhaseId } from './phase-utils';
 import { asRecord } from './phase-utils';
 import { formatMON } from '@/lib/format';
+import { translate } from '@/lib/i18n';
 
 /**
  * Generate a human-readable summary for each timeline phase.
@@ -10,7 +12,8 @@ export function summaryForPhase(
     phaseId: PhaseId,
     phaseEvents: AgentEvent[],
     result: HunterRunResult | null,
-    allEvents: AgentEvent[] = phaseEvents
+    allEvents: AgentEvent[] = phaseEvents,
+    locale: LanguageCode = 'en-US',
 ): string {
     const compactText = (input: string, limit = 80): string => {
         const compact = input.replace(/\s+/g, ' ').trim();
@@ -50,13 +53,17 @@ export function summaryForPhase(
     if (phaseId === 'thinking') {
         const run = phaseEvents.find((e) => e.type === 'run_started');
         const goal = typeof asRecord(run?.data)?.goal === 'string' ? (asRecord(run?.data)?.goal as string) : '';
-        return goal ? `Mission received: ${goal}` : 'Planning the execution strategy.';
+        return goal
+            ? translate(locale, 'timeline.summary.thinking.received', { goal })
+            : translate(locale, 'timeline.summary.thinking.default');
     }
 
     if (phaseId === 'discovery') {
         const ev = [...phaseEvents].reverse().find((e) => e.type === 'services_discovered');
         const count = typeof asRecord(ev?.data)?.count === 'number' ? (asRecord(ev?.data)?.count as number) : 0;
-        return count > 0 ? `Discovered ${count} available providers.` : 'Scanning available providers.';
+        return count > 0
+            ? translate(locale, 'timeline.summary.discovery.found', { count })
+            : translate(locale, 'timeline.summary.discovery.default');
     }
 
     if (phaseId === 'decision') {
@@ -64,8 +71,10 @@ export function summaryForPhase(
         const data = asRecord(ev?.data);
         const id = typeof data?.id === 'string' ? data.id : typeof data?.serviceId === 'string' ? data.serviceId : '';
         const fb = typeof data?.fallbackFrom === 'string' ? data.fallbackFrom : '';
-        if (id && fb && fb !== id) return `Switched provider from ${fb} to ${id}.`;
-        return id ? `Selected provider: ${id}.` : 'Selecting the best provider by price and reputation.';
+        if (id && fb && fb !== id) return translate(locale, 'timeline.summary.decision.switched', { from: fb, to: id });
+        return id
+            ? translate(locale, 'timeline.summary.decision.selected', { id })
+            : translate(locale, 'timeline.summary.decision.default');
     }
 
     if (phaseId === 'payment') {
@@ -73,16 +82,16 @@ export function summaryForPhase(
         const pay = [...phaseEvents].reverse().find((e) => e.type === 'payment_state');
         const amount = typeof asRecord(quote?.data)?.amount === 'string' ? (asRecord(quote?.data)?.amount as string) : '';
         const status = typeof asRecord(pay?.data)?.status === 'string' ? (asRecord(pay?.data)?.status as string) : '';
-        if (amount && status) return `Quote ${formatMON(amount)} MON, status: ${status}.`;
-        if (amount) return `Received quote: ${formatMON(amount)} MON.`;
-        return 'Preparing and submitting x402 payment.';
+        if (amount && status) return translate(locale, 'timeline.summary.payment.quotedStatus', { amount: formatMON(amount), status });
+        if (amount) return translate(locale, 'timeline.summary.payment.quoted', { amount: formatMON(amount) });
+        return translate(locale, 'timeline.summary.payment.default');
     }
 
     if (phaseId === 'execution') {
         if (result?.execution?.result) {
-            return `Result ready: ${compactText(result.execution.result, 80)}`;
+            return translate(locale, 'timeline.summary.execution.ready', { content: compactText(result.execution.result, 80) });
         }
-        return 'Provider is executing after payment settlement.';
+        return translate(locale, 'timeline.summary.execution.default');
     }
 
     if (phaseId === 'verification') {
@@ -90,12 +99,14 @@ export function summaryForPhase(
         const evalEv = [...phaseEvents].reverse().find((e) => e.type === 'evaluation_completed');
         const verified = asRecord(receipt?.data)?.isValid === true;
         const score = typeof asRecord(evalEv?.data)?.score === 'number' ? (asRecord(evalEv?.data)?.score as number) : null;
-        if (verified && score !== null) return `Receipt verified and output scored ${score}/10.`;
+        if (verified && score !== null) return translate(locale, 'timeline.summary.verification.verifiedScore', { score });
         const hasPaymentCompleted = allEvents.some(
             (e) => e.type === 'payment_state' && asRecord(e.data)?.status === 'payment-completed'
         );
-        if (!receipt && hasPaymentCompleted) return 'Awaiting receipt...';
-        return verified ? 'Receipt signature verification completed.' : 'Verifying receipt and evaluating output quality.';
+        if (!receipt && hasPaymentCompleted) return translate(locale, 'timeline.summary.verification.awaiting');
+        return verified
+            ? translate(locale, 'timeline.summary.verification.verified')
+            : translate(locale, 'timeline.summary.verification.default');
     }
 
     if (phaseId === 'complete') {
@@ -107,12 +118,17 @@ export function summaryForPhase(
                 : null;
         const totalWei = readTotalPaymentWei();
         if (score !== null || totalWei) {
-            return `Mission closed. Score ${score ?? '--'}/10, total spent ${formatMON(totalWei)} MON.`;
+            return translate(locale, 'timeline.summary.complete.closed', {
+                score: score ?? '--',
+                amount: formatMON(totalWei),
+            });
         }
         if (result?.finalMessage) {
             return compactText(result.finalMessage, 80);
         }
     }
 
-    return result?.finalMessage ? compactText(result.finalMessage, 80) : 'Mission flow completed.';
+    return result?.finalMessage
+        ? compactText(result.finalMessage, 80)
+        : translate(locale, 'timeline.summary.complete.default');
 }

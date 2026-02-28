@@ -1,5 +1,7 @@
 'use client';
 
+import { useI18n } from '@/components/i18n/locale-provider';
+import { formatLocaleTime } from '@/lib/i18n';
 import { AgentEvent, PaymentStatus } from "@/types/agent";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "motion/react";
@@ -54,82 +56,86 @@ function asRecord(value: unknown): Record<string, unknown> | null {
     return value as Record<string, unknown>;
 }
 
-function getEventConfig(event: AgentEvent): EventConfig {
-    const t = event.type;
+function prettifyEventType(value: string): string {
+    return value.replace(/_/g, ' ');
+}
 
-    if (t === 'run_started') return {
+function getEventConfig(event: AgentEvent, translate: (key: string) => string): EventConfig {
+    const eventType = event.type;
+
+    if (eventType === 'run_started') return {
         icon: <Play className="w-3.5 h-3.5" />,
         bg: 'bg-warm-200/60', border: 'border-warm-400',
-        title: '🚀 Mission Started', accent: 'text-warm-900',
+        title: `🚀 ${translate('trace.run_started')}`, accent: 'text-warm-900',
     };
-    if (t === 'services_discovered') return {
+    if (eventType === 'services_discovered') return {
         icon: <Search className="w-3.5 h-3.5" />,
         bg: 'bg-blue-50', border: 'border-blue-200',
-        title: '🔍 Service Discovery', accent: 'text-blue-800',
+        title: `🔍 ${translate('trace.services_discovered')}`, accent: 'text-blue-800',
     };
-    if (t === 'service_selected') return {
+    if (eventType === 'service_selected') return {
         icon: <ArrowRight className="w-3.5 h-3.5" />,
         bg: 'bg-blue-50', border: 'border-blue-200',
-        title: '🎯 Service Selected', accent: 'text-blue-800',
+        title: `🎯 ${translate('trace.service_selected')}`, accent: 'text-blue-800',
     };
-    if (t === 'tool_call') return {
+    if (eventType === 'tool_call') return {
         icon: <Brain className="w-3.5 h-3.5" />,
         bg: 'bg-amber-50', border: 'border-amber-200',
-        title: '🧠 Agent Reasoning', accent: 'text-amber-800',
+        title: `🧠 ${translate('trace.tool_call')}`, accent: 'text-amber-800',
     };
-    if (t === 'quote_received') return {
+    if (eventType === 'quote_received') return {
         icon: <Wallet className="w-3.5 h-3.5" />,
         bg: 'bg-orange-50', border: 'border-orange-200',
-        title: '💰 Quote (x402)', accent: 'text-orange-800',
+        title: `💰 ${translate('trace.quote_received')}`, accent: 'text-orange-800',
     };
-    if (t === 'payment_state') {
+    if (eventType === 'payment_state') {
         const data = asRecord(event.data);
         const s = (typeof data?.status === 'string' ? data.status : undefined) as PaymentStatus | undefined;
         if (s === 'payment-completed') return {
             icon: <CheckCircle className="w-3.5 h-3.5" />,
             bg: 'bg-green-50', border: 'border-green-200',
-            title: '✅ Payment Confirmed', accent: 'text-green-800',
+            title: `✅ ${translate('trace.payment_confirmed')}`, accent: 'text-green-800',
         };
         if (s === 'payment-submitted') return {
             icon: <Wallet className="w-3.5 h-3.5" />,
             bg: 'bg-orange-50', border: 'border-orange-200',
-            title: '⏳ Payment Submitted', accent: 'text-orange-800',
+            title: `⏳ ${translate('trace.payment_submitted')}`, accent: 'text-orange-800',
         };
         return {
             icon: <Wallet className="w-3.5 h-3.5" />,
             bg: 'bg-red-50', border: 'border-red-200',
-            title: '❌ Payment Failed', accent: 'text-red-800',
+            title: `❌ ${translate('trace.payment_failed')}`, accent: 'text-red-800',
         };
     }
-    if (t === 'receipt_verified') return {
+    if (eventType === 'receipt_verified') return {
         icon: <FileCheck className="w-3.5 h-3.5" />,
         bg: 'bg-green-50', border: 'border-green-200',
-        title: '🔐 Receipt Verified', accent: 'text-green-800',
+        title: `🔐 ${translate('trace.receipt_verified')}`, accent: 'text-green-800',
     };
-    if (t === 'run_completed') return {
+    if (eventType === 'run_completed') return {
         icon: <CheckCircle className="w-3.5 h-3.5" />,
         bg: 'bg-green-50', border: 'border-green-200',
-        title: '🎉 Mission Complete', accent: 'text-green-800',
+        title: `🎉 ${translate('trace.run_completed')}`, accent: 'text-green-800',
     };
-    if (t === 'run_failed' || t === 'error') return {
+    if (eventType === 'run_failed' || eventType === 'error') return {
         icon: <AlertOctagon className="w-3.5 h-3.5" />,
         bg: 'bg-red-50', border: 'border-red-200',
-        title: '⚠️ Error', accent: 'text-red-800',
+        title: `⚠️ ${translate('trace.error')}`, accent: 'text-red-800',
     };
     return {
         icon: <Zap className="w-3.5 h-3.5" />,
         bg: 'bg-warm-100', border: 'border-border',
-        title: t.replace(/_/g, ' '), accent: 'text-muted-foreground',
+        title: prettifyEventType(eventType), accent: 'text-muted-foreground',
     };
 }
 
 /** 事件详情 */
-function getEventDetail(event: AgentEvent): React.ReactNode {
+function getEventDetail(event: AgentEvent, t: (key: string, variables?: Record<string, string | number>) => string): React.ReactNode {
     const { type } = event;
     const data = asRecord(event.data);
 
     if (type === 'services_discovered' && typeof data?.count === 'number')
-        return <p>Found <strong>{data.count}</strong> services in registry</p>;
+        return <p>{t('trace.foundServices', { count: data.count })}</p>;
     if (type === 'service_selected') {
         const serviceId =
             typeof data?.serviceId === 'string'
@@ -158,27 +164,28 @@ function getEventDetail(event: AgentEvent): React.ReactNode {
         );
     }
     if (type === 'quote_received' && typeof data?.amount === 'string')
-        return <p>Price: <strong className="text-orange-700">{data.amount} MON</strong></p>;
+        return <p>{t('trace.price', { amount: data.amount })}</p>;
     if (type === 'payment_state' && typeof data?.txHash === 'string') {
         return (
             <a href={`https://testnet.monadscan.com/tx/${data.txHash}`}
                 target="_blank" rel="noopener noreferrer"
                 className="text-teal-700 hover:underline text-xs font-mono inline-flex items-center gap-1">
-                View on MonadScan →
+                {t('trace.viewOnExplorer')} →
             </a>
         );
     }
     if (type === 'receipt_verified')
-        return <p className="text-green-700 font-medium">Signature Valid ✓</p>;
+        return <p className="text-green-700 font-medium">{t('trace.signatureValid')}</p>;
     if ((type === 'run_failed' || type === 'error') && typeof data?.message === 'string')
         return <p className="text-red-700">{data.message}</p>;
     return null;
 }
 
 function TraceCard({ event, isLatest }: { event: AgentEvent; isLatest: boolean }) {
-    const config = getEventConfig(event);
-    const detail = getEventDetail(event);
-    const time = new Date(event.at).toLocaleTimeString();
+    const { locale, t } = useI18n();
+    const config = getEventConfig(event, t);
+    const detail = getEventDetail(event, t);
+    const time = formatLocaleTime(locale, event.at);
 
     return (
         <div className={cn(

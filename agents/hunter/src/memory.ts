@@ -1,5 +1,11 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import type { LanguageCode } from "@rebel/shared";
+
+export interface LessonTranslations {
+  "en-US"?: string;
+  "zh-CN"?: string;
+}
 
 export interface Experience {
   missionId: string;
@@ -8,11 +14,13 @@ export interface Experience {
   taskType: string;
   score: number;
   lesson: string;
+  lessonTranslations?: LessonTranslations;
   timestamp: number;
 }
 
 interface Insight {
   lesson: string;
+  lessonTranslations?: LessonTranslations;
   count: number;
   taskTypes: string[];
   updatedAt: number;
@@ -57,6 +65,60 @@ async function writeJsonFile(filePath: string, payload: unknown): Promise<void> 
   await writeFile(filePath, JSON.stringify(payload, null, 2), "utf8");
 }
 
+function sanitizeLessonText(value: unknown): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const compact = value.replace(/\s+/g, " ").trim();
+  return compact.length > 0 ? compact.slice(0, 200) : undefined;
+}
+
+function normalizeLessonTranslations(value: unknown): LessonTranslations | undefined {
+  if (!value || typeof value !== "object") {
+    return undefined;
+  }
+
+  const record = value as Record<string, unknown>;
+  const en = sanitizeLessonText(record["en-US"]);
+  const zh = sanitizeLessonText(record["zh-CN"]);
+
+  if (!en && !zh) {
+    return undefined;
+  }
+
+  return {
+    ...(en ? { "en-US": en } : {}),
+    ...(zh ? { "zh-CN": zh } : {})
+  };
+}
+
+function mergeLessonTranslations(
+  current?: LessonTranslations,
+  next?: LessonTranslations
+): LessonTranslations | undefined {
+  if (!current && !next) {
+    return undefined;
+  }
+
+  const merged: LessonTranslations = {
+    ...(current ?? {}),
+    ...(next ?? {})
+  };
+
+  return merged["en-US"] || merged["zh-CN"] ? merged : undefined;
+}
+
+export function toLessonTranslations(
+  locale: LanguageCode,
+  lesson: string,
+  existing?: LessonTranslations
+): LessonTranslations {
+  return {
+    ...(existing ?? {}),
+    [locale]: lesson
+  };
+}
+
 export async function readExperiences(): Promise<Experience[]> {
   const store = await readJsonFile<ExperienceStore>(experiencePath(), { experiences: [] });
   if (!Array.isArray(store.experiences)) {
@@ -71,6 +133,9 @@ export async function readExperiences(): Promise<Experience[]> {
       taskType: String(item.taskType),
       score: Number(item.score),
       lesson: String(item.lesson),
+      lessonTranslations: normalizeLessonTranslations(
+        (item as { lessonTranslations?: unknown }).lessonTranslations
+      ),
       timestamp: Number(item.timestamp)
     }))
     .filter((item) => item.lesson.trim().length > 0);
@@ -89,6 +154,7 @@ function buildInsights(experiences: Experience[]): Insight[] {
     string,
     {
       lesson: string;
+      lessonTranslations?: LessonTranslations;
       count: number;
       taskTypes: Set<string>;
       updatedAt: number;
@@ -101,12 +167,14 @@ function buildInsights(experiences: Experience[]): Insight[] {
     if (!existing) {
       byLesson.set(key, {
         lesson: exp.lesson.trim(),
+        lessonTranslations: exp.lessonTranslations,
         count: 1,
         taskTypes: new Set([exp.taskType]),
         updatedAt: exp.timestamp
       });
       continue;
     }
+    existing.lessonTranslations = mergeLessonTranslations(existing.lessonTranslations, exp.lessonTranslations);
     existing.count += 1;
     existing.taskTypes.add(exp.taskType);
     existing.updatedAt = Math.max(existing.updatedAt, exp.timestamp);
@@ -122,6 +190,7 @@ function buildInsights(experiences: Experience[]): Insight[] {
     .slice(0, 20)
     .map((item) => ({
       lesson: item.lesson,
+      lessonTranslations: item.lessonTranslations,
       count: item.count,
       taskTypes: [...item.taskTypes],
       updatedAt: item.updatedAt
@@ -137,7 +206,18 @@ async function readInsights(): Promise<Insight[]> {
   if (!Array.isArray(store.insights)) {
     return [];
   }
-  return store.insights;
+  return store.insights
+    .filter((item) => item && typeof item === "object")
+    .map((item) => ({
+      lesson: String(item.lesson),
+      lessonTranslations: normalizeLessonTranslations(
+        (item as { lessonTranslations?: unknown }).lessonTranslations
+      ),
+      count: Number(item.count),
+      taskTypes: Array.isArray(item.taskTypes) ? item.taskTypes.map((taskType) => String(taskType)) : [],
+      updatedAt: Number(item.updatedAt)
+    }))
+    .filter((item) => item.lesson.trim().length > 0 && Number.isFinite(item.count) && item.count > 0);
 }
 
 export async function appendExperience(experience: Experience): Promise<Experience> {

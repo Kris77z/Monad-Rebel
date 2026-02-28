@@ -208,6 +208,37 @@ describe("runCommanderHunter regression", () => {
     assert.ok(events.includes("phase_completed"));
   });
 
+  it("localizes fallback phase and final message for zh-CN", async () => {
+    const result = await runCommanderHunter(
+      "fallback mission",
+      {
+        locale: "zh-CN"
+      },
+      {
+        llm: {
+          provider: "openai",
+          apiKey: "test-key",
+          model: "test-model"
+        },
+        createMissionId: () => "mission-fallback-zh",
+        buildBudget: () => mockBudget(),
+        executePhase: async (goal) => {
+          assert.equal(goal, "fallback mission");
+          return mockSingleResult({ amountWei: "7", content: "fallback-result", serviceId: "writer-v1" });
+        },
+        runScriptedHunter: async () => {
+          throw new Error("runScriptedHunter should not be called");
+        },
+        runPlanner: async () => ""
+      }
+    );
+
+    assert.equal(result.mode, "commander");
+    assert.equal(result.phases.length, 1);
+    assert.equal(result.phases[0].phase.name, "回退阶段");
+    assert.match(result.finalMessage, /指挥模式已完成/);
+  });
+
   it("marks timed-out phases as failed and allows retry to continue", async () => {
     let callCount = 0;
     const result = await runCommanderHunter(

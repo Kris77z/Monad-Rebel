@@ -69,7 +69,11 @@ export async function runKimiReactLoop(
   systemPrompt: string
 ): Promise<string> {
   if (!hunterConfig.llm.apiKey) {
-    throw new HunterError(500, "LLM_KEY_MISSING", "KIMI_API_KEY is required for Kimi ReAct mode");
+    throw new HunterError(
+      500,
+      "LLM_KEY_MISSING",
+      state.locale === "zh-CN" ? "Kimi ReAct 模式必须配置 KIMI_API_KEY" : "KIMI_API_KEY is required for Kimi ReAct mode"
+    );
   }
 
   const baseURL = (hunterConfig.llm.baseURL ?? "https://api.moonshot.cn/v1").replace(/\/$/, "");
@@ -169,6 +173,10 @@ export async function runKimiReactLoop(
           : {})
       });
       return finalText || "ReAct flow completed successfully.";
+      return (
+        finalText ||
+        (state.locale === "zh-CN" ? "ReAct 流程已成功完成。" : "ReAct flow completed successfully.")
+      );
     }
 
     // Kimi requires reasoning_content to be preserved in assistant tool-call turns
@@ -209,5 +217,11 @@ export async function runKimiReactLoop(
     }
   }
 
-  throw new HunterError(500, "REACT_INCOMPLETE", "ReAct flow exceeded max steps without completion");
+  throw new HunterError(
+    500,
+    "REACT_INCOMPLETE",
+    state.locale === "zh-CN"
+      ? "ReAct 流程超过最大步数仍未完成"
+      : "ReAct flow exceeded max steps without completion"
+  );
 }

@@ -1,6 +1,12 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
-import type { CommanderPhase, HunterServiceTaskType } from "@rebel/shared";
+import {
+  DEFAULT_LANGUAGE_CODE,
+  buildOutputLanguageInstruction,
+  type CommanderPhase,
+  type HunterServiceTaskType,
+  type LanguageCode
+} from "@rebel/shared";
 import { hunterConfig } from "./config.js";
 
 const SERVICE_TYPES: HunterServiceTaskType[] = [
@@ -16,7 +22,8 @@ const SERVICE_TYPES: HunterServiceTaskType[] = [
 
 const SERVICE_TYPE_SET = new Set<string>(SERVICE_TYPES);
 
-export const COMMANDER_DECOMPOSE_PROMPT = `
+export function buildCommanderDecomposePrompt(locale: LanguageCode = DEFAULT_LANGUAGE_CODE): string {
+  return `
 You are a mission commander for the Rebel Agent Mesh.
 
 Break the following mission into 2-4 sequential sub-tasks.
@@ -38,10 +45,15 @@ Rules:
 3. Later phases may reference results from earlier ones
 4. Order matters: put foundational analysis before synthesis
 5. If the mission is simple enough for 1 agent, return just 1 phase
+6. Write phase names and goals in the requested output language.
 
 Output JSON only. Prefer this schema:
 [{"name":"Short Label","taskType":"service-type","goal":"Detailed goal"}]
+  
+Output language:
+${buildOutputLanguageInstruction({ locale, outputType: "json" })}
 `.trim();
+}
 
 function parseJsonPayload(raw: string): unknown {
   const trimmed = raw.trim();
@@ -104,7 +116,10 @@ function normalizePhases(raw: unknown): CommanderPhase[] {
   return phases.slice(0, 4);
 }
 
-export async function decomposeMission(goal: string): Promise<CommanderPhase[]> {
+export async function decomposeMission(
+  goal: string,
+  locale: LanguageCode = DEFAULT_LANGUAGE_CODE
+): Promise<CommanderPhase[]> {
   if (hunterConfig.llm.provider === "none" || !hunterConfig.llm.apiKey) {
     return [];
   }
@@ -119,8 +134,8 @@ export async function decomposeMission(goal: string): Promise<CommanderPhase[]> 
 
     const response = await generateText({
       model: provider.chat(hunterConfig.llm.model),
-      system: COMMANDER_DECOMPOSE_PROMPT,
-      prompt: `Mission:\n${goal}`,
+      system: buildCommanderDecomposePrompt(locale),
+      prompt: `Mission:\n${goal}\nRequested locale: ${locale}`,
       temperature: hunterConfig.llm.provider === "kimi" ? 1 : 0.2
     });
 

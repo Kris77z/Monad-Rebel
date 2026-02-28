@@ -3,6 +3,7 @@
 import type { AgentEvent, HunterRunResult } from '@/types/agent';
 import type { HunterIdentityResponse } from '@/hooks/use-agent-identity';
 import type { HunterProfile } from '@/types/hunter-profile';
+import { useI18n } from '@/components/i18n/locale-provider';
 import { HunterMemoryProfile } from '@/components/panels/hunter-memory-profile';
 import { AgentIdentityCard } from './agent-identity-card';
 import { CollapsibleSection } from './collapsible-section';
@@ -46,6 +47,7 @@ export function MyAgentPanel({
   identity, identityLoading, identityError, onRetryIdentity,
   profile, profileLoading, profileError,
 }: MyAgentPanelProps) {
+  const { t } = useI18n();
   const cfg = STATUS_DISPLAY[status];
   const commanderPhases = useMemo(() => collectCommanderPhases(events, result), [events, result]);
   const commanderAwareStatus = useMemo(
@@ -89,7 +91,7 @@ export function MyAgentPanel({
           <div className="border-t border-border" />
 
           {/* Memory Profile — collapsible, default OPEN */}
-          <CollapsibleSection label="MEMORY PROFILE" storageKey="panel-memory" defaultOpen>
+          <CollapsibleSection label={t('panel.memory')} storageKey="panel-memory" defaultOpen>
             <HunterMemoryProfile profile={profile} loading={profileLoading} error={profileError} />
           </CollapsibleSection>
 
@@ -111,14 +113,14 @@ export function MyAgentPanel({
           {identity.identity.agentId && (
             <>
               <div className="border-t border-border" />
-              <CollapsibleSection label="ON-CHAIN" storageKey="panel-onchain">
+              <CollapsibleSection label={t('panel.onchain')} storageKey="panel-onchain">
                 <div className="text-[10px] space-y-1">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">AGENT_ID</span>
+                    <span className="text-muted-foreground">{t('panel.agentId')}</span>
                     <span className="text-foreground/80 truncate max-w-[140px]">{identity.identity.agentId}</span>
                   </div>
                   {identity.onchain?.registered && (
-                    <span className="text-primary text-glow">[ERC-8004 REGISTERED]</span>
+                    <span className="text-primary text-glow">{t('panel.registered')}</span>
                   )}
                 </div>
               </CollapsibleSection>

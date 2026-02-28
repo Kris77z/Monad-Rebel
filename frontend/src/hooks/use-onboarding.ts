@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { apiBase } from '@/lib/api-config';
+import { useI18n } from '@/components/i18n/locale-provider';
 
 /* ─── Types ─── */
 
@@ -35,6 +36,7 @@ const INITIAL_FORM: AgentOnboardingForm = {
  * On submit, POSTs to Registry POST /agents/register.
  */
 export function useOnboarding() {
+    const { t } = useI18n();
     const [state, setState] = useState<OnboardingState>({
         step: 'connect_wallet',
         form: { ...INITIAL_FORM },
@@ -56,7 +58,7 @@ export function useOnboarding() {
     /** POST to Registry /agents/register */
     const submit = async () => {
         if (!state.walletAddress) {
-            setState((prev) => ({ ...prev, error: 'Wallet not connected' }));
+            setState((prev) => ({ ...prev, error: t('onboarding.error.walletNotConnected') }));
             return;
         }
 
@@ -78,7 +80,7 @@ export function useOnboarding() {
 
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
-                throw new Error((data as Record<string, string>).message ?? `Register failed (${res.status})`);
+                throw new Error((data as Record<string, string>).message ?? t('onboarding.error.registerFailedStatus', { status: res.status }));
             }
 
             // Also persist to localStorage for offline fallback
@@ -89,7 +91,7 @@ export function useOnboarding() {
 
             setState((prev) => ({ ...prev, submitting: false, step: 'complete' }));
         } catch (err: unknown) {
-            const msg = err instanceof Error ? err.message : 'Registration failed';
+            const msg = err instanceof Error ? err.message : t('onboarding.error.registerFailed');
             setState((prev) => ({ ...prev, submitting: false, error: msg }));
         }
     };

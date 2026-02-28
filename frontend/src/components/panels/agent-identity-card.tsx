@@ -1,6 +1,7 @@
 'use client';
 
 import type { HunterIdentityResponse } from '@/hooks/use-agent-identity';
+import { useI18n } from '@/components/i18n/locale-provider';
 import { shortenAddress } from '@/lib/format';
 import { useState, useCallback } from 'react';
 import { Loader2, RefreshCw, Copy, Check } from 'lucide-react';
@@ -19,6 +20,7 @@ interface AgentIdentityCardProps {
 export function AgentIdentityCard({
     identity, identityLoading, identityError, onRetryIdentity,
 }: AgentIdentityCardProps) {
+    const { t } = useI18n();
     const [copied, setCopied] = useState(false);
     const walletAddr = identity?.identity?.walletAddress;
     const copyAddress = useCallback(() => {
@@ -33,7 +35,7 @@ export function AgentIdentityCard({
         return (
             <div className="border border-border bg-card p-4 flex items-center gap-2">
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-                <span className="text-xs text-muted-foreground">connecting to agent...</span>
+                <span className="text-xs text-muted-foreground">{t('agent.connecting')}</span>
             </div>
         );
     }
@@ -42,14 +44,14 @@ export function AgentIdentityCard({
     if (identityError && !identity) {
         return (
             <div className="border border-red-300 bg-red-50 p-3">
-                <p className="text-xs text-red-700">✗ agent offline</p>
+                <p className="text-xs text-red-700">✗ {t('agent.offline')}</p>
                 <p className="text-[10px] text-red-500 mt-1 break-all">{identityError}</p>
                 {onRetryIdentity && (
                     <button
                         onClick={onRetryIdentity}
                         className="mt-2 inline-flex items-center gap-1 text-[10px] text-red-600 hover:text-red-800"
                     >
-                        <RefreshCw className="w-2.5 h-2.5" /> retry
+                        <RefreshCw className="w-2.5 h-2.5" /> {t('agent.retry')}
                     </button>
                 )}
             </div>

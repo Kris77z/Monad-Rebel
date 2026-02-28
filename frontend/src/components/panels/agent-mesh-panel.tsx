@@ -1,7 +1,9 @@
 'use client';
 
+import { useI18n } from '@/components/i18n/locale-provider';
 import { cn } from '@/lib/utils';
 import { formatMON } from '@/lib/format';
+import { formatRelativeUnixTime } from '@/lib/i18n';
 import { motion } from 'motion/react';
 import { useRegistryServices } from '@/hooks/use-registry-services';
 import type { AgentEvent, HunterRunResult } from '@/types/agent';
@@ -15,7 +17,6 @@ import {
   cardGlowClass,
   classifyServiceKind,
   reputationTierColor,
-  timeAgo,
   type MeshNode,
 } from './mesh-helpers';
 
@@ -31,6 +32,7 @@ function ReputationBar({ value }: { value: number }) {
 }
 
 export function AgentMeshPanel({ events, result }: AgentMeshPanelProps) {
+  const { locale, t } = useI18n();
   const { services: registryServices } = useRegistryServices();
   const eventNodes = buildMeshNodes(events, result);
   const eventNodeIds = new Set(eventNodes.map((n) => n.id));
@@ -67,7 +69,7 @@ export function AgentMeshPanel({ events, result }: AgentMeshPanelProps) {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="px-1 py-2 mb-2 widget-label">─ mesh.net</div>
+      <div className="px-1 py-2 mb-2 widget-label">─ {t('mesh.title')}</div>
 
       <div className="space-y-3 flex-1 overflow-y-auto pr-1 scrollbar-thin">
         {nodes.map((node) => {
@@ -105,32 +107,32 @@ export function AgentMeshPanel({ events, result }: AgentMeshPanelProps) {
                   <div className="min-w-0">
                     <p className="text-sm truncate">{node.name}</p>
                   </div>
-                  <span className={cn('text-[10px] shrink-0', st.cls)}>{st.marker}</span>
+                  <span className={cn('text-[10px] shrink-0', st.cls)}>[{st.marker} {t(st.labelKey)}]</span>
                 </div>
 
                 <div className="mt-2 text-[10px]">
-                  <span className={cn(kind.cls)}>{kind.label}</span>
+                  <span className={cn(kind.cls)}>{t(kind.labelKey)}</span>
                   {node.taskType && <span className="text-muted-foreground"> · {node.taskType}</span>}
                 </div>
 
                 <div className="mt-3 space-y-1 text-[11px]">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">PRICE</span>
+                    <span className="text-muted-foreground">{t('mesh.price')}</span>
                     <span>{formatMON(node.price)} MON</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">REP</span>
+                    <span className="text-muted-foreground">{t('mesh.rep')}</span>
                     <ReputationBar value={node.reputation} />
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">SAMPLES</span>
+                    <span className="text-muted-foreground">{t('mesh.samples')}</span>
                     {node.reputationQualified === false ? (
                       <motion.span
                         className="text-[10px] text-muted-foreground"
                         animate={{ opacity: [0.4, 1, 0.4] }}
                         transition={{ repeat: Infinity, duration: 2 }}
                       >
-                        {node.reputationCount ?? 0} · warming up
+                        {node.reputationCount ?? 0} · {t('mesh.warmingUp')}
                       </motion.span>
                     ) : (
                       <span className={cn('text-[10px]', trend.cls)}>
@@ -139,9 +141,9 @@ export function AgentMeshPanel({ events, result }: AgentMeshPanelProps) {
                     )}
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">LAST USED</span>
+                    <span className="text-muted-foreground">{t('mesh.lastUsed')}</span>
                     <span className="text-[10px] text-muted-foreground">
-                      {timeAgo(node.lastUsedAt)}
+                      {formatRelativeUnixTime(locale, node.lastUsedAt)}
                     </span>
                   </div>
                 </div>

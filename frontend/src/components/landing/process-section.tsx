@@ -127,7 +127,7 @@ export function ProcessSection() {
                                 {step.desc}
                             </p>
                             <Link
-                                href="/dashboard"
+                                href="/onboarding"
                                 className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-foreground hover:opacity-70 transition-opacity"
                             >
                                 ↳ Try it now

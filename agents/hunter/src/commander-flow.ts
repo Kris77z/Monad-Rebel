@@ -1,6 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, tool } from "ai";
+import {
+  DEFAULT_LANGUAGE_CODE,
+  buildOutputLanguageInstruction,
+  localizeByLocale,
+  type LanguageCode
+} from "@rebel/shared";
 import type {
   CommanderPhase,
   CommanderPhaseResult,
@@ -41,6 +47,7 @@ const SERVICE_TYPE_SET = new Set<string>(SERVICE_TYPES);
 interface CommanderRuntimeState {
   missionId: string;
   goal: string;
+  locale: LanguageCode;
   budget: CommanderBudgetSnapshot;
   phaseResults: CommanderPhaseResult[];
   contextParts: string[];
@@ -99,6 +106,7 @@ const defaultCommanderDeps: CommanderFlowDeps = {
         {
           goal,
           missionId: randomUUID(),
+          locale: options.locale ?? DEFAULT_LANGUAGE_CODE,
           services: []
         },
         options,
@@ -144,16 +152,22 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-function buildInterruptMessage(signal: AbortSignal): string {
+function buildLocalizedInterruptMessage(signal: AbortSignal, locale: LanguageCode): string {
   const reason = signal.reason;
   if (typeof reason === "string" && reason.trim().length > 0) {
-    return `Commander interrupted: ${reason}`;
+    return localizeByLocale(locale, {
+      en: `Commander interrupted: ${reason}`,
+      zh: `指挥模式已中断：${reason}`
+    });
   }
-  return "Commander interrupted by user request.";
+  return localizeByLocale(locale, {
+    en: "Commander interrupted by user request.",
+    zh: "指挥模式已按用户请求中断。"
+  });
 }
 
-function createInterruptError(signal: AbortSignal): HunterError {
-  return new HunterError(499, "COMMANDER_INTERRUPTED", buildInterruptMessage(signal), {
+function createInterruptError(signal: AbortSignal, locale: LanguageCode): HunterError {
+  return new HunterError(499, "COMMANDER_INTERRUPTED", buildLocalizedInterruptMessage(signal, locale), {
     reason: signal.reason
   });
 }
@@ -162,25 +176,28 @@ function throwIfInterrupted(options: HunterRunOptions): void {
   if (!options.signal?.aborted) {
     return;
   }
-  throw createInterruptError(options.signal);
+  throw createInterruptError(options.signal, options.locale ?? DEFAULT_LANGUAGE_CODE);
 }
 
 function getInterruptReason(options: HunterRunOptions): string | null {
   if (!options.signal?.aborted) {
     return null;
   }
-  return buildInterruptMessage(options.signal);
+  return buildLocalizedInterruptMessage(options.signal, options.locale ?? DEFAULT_LANGUAGE_CODE);
 }
 
 function isInterruptError(error: unknown): error is HunterError {
   return error instanceof HunterError && error.code === "COMMANDER_INTERRUPTED";
 }
 
-function createPhaseTimeoutError(phaseName: string, timeoutMs: number): HunterError {
+function createPhaseTimeoutError(phaseName: string, timeoutMs: number, locale: LanguageCode): HunterError {
   return new HunterError(
     504,
     "COMMANDER_PHASE_TIMEOUT",
-    `Phase "${phaseName}" timed out after ${timeoutMs} ms`,
+    localizeByLocale(locale, {
+      en: `Phase "${phaseName}" timed out after ${timeoutMs} ms`,
+      zh: `阶段“${phaseName}”在 ${timeoutMs} 毫秒后超时`
+    }),
     { phaseName, timeoutMs }
   );
 }
@@ -198,13 +215,17 @@ async function runPhaseWithTimeout(input: {
   let timeoutHandle: NodeJS.Timeout | undefined;
   const phasePromise = run();
   const timeoutPromise = new Promise<SingleHunterRunResult>((_, reject) => {
-    timeoutHandle = setTimeout(() => reject(createPhaseTimeoutError(phaseName, timeoutMs)), timeoutMs);
+    timeoutHandle = setTimeout(
+      () => reject(createPhaseTimeoutError(phaseName, timeoutMs, options.locale ?? DEFAULT_LANGUAGE_CODE)),
+      timeoutMs
+    );
   });
 
   const race: Array<Promise<SingleHunterRunResult>> = [phasePromise, timeoutPromise];
   if (options.signal) {
     const interruptPromise = new Promise<SingleHunterRunResult>((_, reject) => {
-      const onAbort = () => reject(createInterruptError(options.signal!));
+      const onAbort = () =>
+        reject(createInterruptError(options.signal!, options.locale ?? DEFAULT_LANGUAGE_CODE));
       options.signal!.addEventListener("abort", onAbort, { once: true });
       cleanups.push(() => options.signal?.removeEventListener("abort", onAbort));
     });
@@ -230,17 +251,23 @@ function normalizeTaskType(raw: unknown): HunterServiceTaskType | undefined {
   return SERVICE_TYPE_SET.has(raw) ? (raw as HunterServiceTaskType) : undefined;
 }
 
-function buildPhaseGoal(goal: string, previousContext: string): string {
+function buildPhaseGoal(goal: string, previousContext: string, locale: LanguageCode): string {
   if (previousContext.trim().length === 0) {
     return goal;
   }
-  return `${goal}\n\nContext from previous phases:\n${previousContext}`;
+  return `${goal}\n\n${localizeByLocale(locale, {
+    en: "Context from previous phases:",
+    zh: "前序阶段上下文："
+  })}\n${previousContext}`;
 }
 
-function summarizeForContext(phase: CommanderPhase, content: string): string {
+function summarizeForContext(phase: CommanderPhase, content: string, locale: LanguageCode): string {
   const compact = content.replace(/\s+/g, " ").trim();
   const clipped = compact.length > 1000 ? `${compact.slice(0, 1000)}...` : compact;
-  return `[${phase.name}] ${clipped}`;
+  return localizeByLocale(locale, {
+    en: `[${phase.name}] ${clipped}`,
+    zh: `【${phase.name}】${clipped}`
+  });
 }
 
 function summarizeToolContent(content: string): string {
@@ -259,15 +286,17 @@ function readPhaseSpentWei(result: SingleHunterRunResult): string {
 function getBudgetBlockReason(state: CommanderRuntimeState): string | null {
   return getCommanderBudgetBlockReason({
     budget: state.budget,
-    stopReason: state.budgetStopReason
+    stopReason: state.budgetStopReason,
+    locale: state.locale
   });
 }
 
-function updateBudgetAfterPhase(state: CommanderRuntimeState, phaseSpentWei: string): void {
+function updateBudgetAfterPhase(state: CommanderRuntimeState, phaseSpentWei: string, locale: LanguageCode): void {
   const updated = applyCommanderPhaseSpend({
     budget: state.budget,
     phaseSpentWei,
-    stopReason: state.budgetStopReason
+    stopReason: state.budgetStopReason,
+    locale
   });
   state.budget = updated.budget;
   state.budgetStopReason = updated.stopReason;
@@ -275,7 +304,8 @@ function updateBudgetAfterPhase(state: CommanderRuntimeState, phaseSpentWei: str
 
 function buildCommanderSystemPrompt(
   budget: ReturnType<typeof buildCommanderBudget>,
-  phaseTimeoutMs: number
+  phaseTimeoutMs: number,
+  locale: LanguageCode
 ): string {
   return `
 You are an autonomous mission commander for the Rebel Agent Mesh.
@@ -291,11 +321,15 @@ Operating rules:
   )} MON.
 6) Preferred task types (optional): ${SERVICE_TYPES.join(", ")}.
 7) A single phase may timeout after ${phaseTimeoutMs} ms; timeout means the phase failed and you may retry with a narrower goal.
+8) All sub-goals passed to hire_agent must be written in the user's requested language when possible.
 
 Final answer requirements:
 - Summarize what was completed.
 - Include key findings from successful phases.
 - Mention any failed/skipped phases and why.
+
+Output language:
+${buildOutputLanguageInstruction({ locale })}
 `.trim();
 }
 
@@ -304,7 +338,8 @@ function toCommanderResult(
   finalMessage: string,
   fallback: SingleHunterRunResult,
   phases: CommanderPhaseResult[],
-  budget: ReturnType<typeof buildCommanderBudget>
+  budget: ReturnType<typeof buildCommanderBudget>,
+  locale: LanguageCode
 ): CommanderHunterRunResult {
   const successCount = phases.filter((item) => item.success).length;
   return {
@@ -316,9 +351,14 @@ function toCommanderResult(
     finalMessage:
       finalMessage.trim().length > 0
         ? finalMessage
-        : `Commander flow completed (${successCount}/${phases.length} phases succeeded, spent ${formatCommanderMon(
-          budget.spentWei
-        )} MON).`
+        : localizeByLocale(locale, {
+            en: `Commander flow completed (${successCount}/${phases.length} phases succeeded, spent ${formatCommanderMon(
+              budget.spentWei
+            )} MON).`,
+            zh: `指挥模式已完成（共成功 ${successCount}/${phases.length} 个阶段，花费 ${formatCommanderMon(
+              budget.spentWei
+            )} MON）。`
+          })
   };
 }
 
@@ -327,6 +367,7 @@ export async function runCommanderHunter(
   options: HunterRunOptions = {},
   depsOverrides: Partial<CommanderFlowDeps> = {}
 ): Promise<HunterRunResult> {
+  const locale = options.locale ?? DEFAULT_LANGUAGE_CODE;
   const deps: CommanderFlowDeps = {
     ...defaultCommanderDeps,
     ...depsOverrides,
@@ -347,6 +388,7 @@ export async function runCommanderHunter(
   const state: CommanderRuntimeState = {
     missionId: deps.createMissionId(),
     goal,
+    locale,
     budget,
     phaseResults: [],
     contextParts: [],
@@ -356,6 +398,7 @@ export async function runCommanderHunter(
   emitTrace(options, "run_started", {
     mode: "commander",
     goal,
+    locale,
     maxPhases: budget.maxPhases,
     maxTotalWei: budget.maxTotalWei,
     maxPerPhaseWei: budget.maxPerPhaseWei,
@@ -418,9 +461,14 @@ export async function runCommanderHunter(
       const index = state.phaseResults.length;
       const rawGoal = parsed.goal.trim();
       const phaseName =
-        parsed.name && parsed.name.trim().length > 0 ? parsed.name.trim() : `Phase ${index + 1}`;
+        parsed.name && parsed.name.trim().length > 0
+          ? parsed.name.trim()
+          : localizeByLocale(locale, {
+              en: `Phase ${index + 1}`,
+              zh: `阶段 ${index + 1}`
+            });
       const taskTypeHint = normalizeTaskType(parsed.preferredType);
-      const phaseGoal = buildPhaseGoal(rawGoal, state.contextParts.join("\n"));
+      const phaseGoal = buildPhaseGoal(rawGoal, state.contextParts.join("\n"), locale);
 
       const placeholderTaskType = taskTypeHint ?? "content-generation";
       emitTrace(options, "phase_started", {
@@ -459,7 +507,10 @@ export async function runCommanderHunter(
       } catch (error) {
         const message = errorMessage(error);
         hunterError(`commander: phase ${index} "${phaseName}" FAILED — ${message}`);
-        const failContent = `[Phase failed] ${message}`;
+        const failContent = localizeByLocale(locale, {
+          en: `[Phase failed] ${message}`,
+          zh: `【阶段失败】${message}`
+        });
         const failedResult: CommanderPhaseResult = {
           index,
           phase,
@@ -468,7 +519,12 @@ export async function runCommanderHunter(
           error: message
         };
         state.phaseResults.push(failedResult);
-        state.contextParts.push(`[${phaseName} failed] ${message}`);
+        state.contextParts.push(
+          localizeByLocale(locale, {
+            en: `[${phaseName} failed] ${message}`,
+            zh: `【${phaseName}失败】${message}`
+          })
+        );
         state.budget.phaseCount += 1;
         if (isInterruptError(error)) {
           state.budgetStopReason = state.budgetStopReason ?? message;
@@ -497,7 +553,7 @@ export async function runCommanderHunter(
 
       const content = runResult.execution.result;
       const phaseSpentWei = readPhaseSpentWei(runResult);
-      updateBudgetAfterPhase(state, phaseSpentWei);
+      updateBudgetAfterPhase(state, phaseSpentWei, locale);
 
       const successPhase: CommanderPhaseResult = {
         index,
@@ -506,7 +562,7 @@ export async function runCommanderHunter(
         content
       };
       state.phaseResults.push(successPhase);
-      state.contextParts.push(summarizeForContext(phase, content));
+      state.contextParts.push(summarizeForContext(phase, content, locale));
 
       emitTrace(options, "phase_completed", {
         ...phaseResultBase,
@@ -537,7 +593,7 @@ export async function runCommanderHunter(
     goal,
     options,
     llm: deps.llm,
-    systemPrompt: buildCommanderSystemPrompt(state.budget, deps.phaseTimeoutMs),
+    systemPrompt: buildCommanderSystemPrompt(state.budget, deps.phaseTimeoutMs, locale),
     hireAgentSpec
   });
   hunterLog(`commander: planner finished — ${state.phaseResults.length} phases executed`);
@@ -548,10 +604,14 @@ export async function runCommanderHunter(
   }
 
   if (state.phaseResults.length === 0 && !interruptReason) {
+    const fallbackPhaseName = localizeByLocale(locale, {
+      en: "Fallback Phase",
+      zh: "回退阶段"
+    });
     hunterWarn(`commander: planner did not call hire_agent — running fallback phase`);
     emitTrace(options, "phase_started", {
       index: 0,
-      name: "Fallback Phase",
+      name: fallbackPhaseName,
       taskType: "content-generation",
       goal
     });
@@ -562,7 +622,7 @@ export async function runCommanderHunter(
           emitLifecycleEvents: false
         }),
       options,
-      phaseName: "Fallback Phase",
+      phaseName: fallbackPhaseName,
       timeoutMs: deps.phaseTimeoutMs
     });
     state.latestSuccessfulRun = runResult;
@@ -571,7 +631,7 @@ export async function runCommanderHunter(
     const fallbackPhase: CommanderPhaseResult = {
       index: 0,
       phase: {
-        name: "Fallback Phase",
+        name: fallbackPhaseName,
         taskType: resolvedTaskType,
         goal
       },
@@ -580,7 +640,7 @@ export async function runCommanderHunter(
     };
     state.phaseResults.push(fallbackPhase);
     const phaseSpentWei = readPhaseSpentWei(runResult);
-    updateBudgetAfterPhase(state, phaseSpentWei);
+    updateBudgetAfterPhase(state, phaseSpentWei, locale);
     emitTrace(options, "phase_completed", {
       index: 0,
       name: fallbackPhase.phase.name,
@@ -597,16 +657,30 @@ export async function runCommanderHunter(
       });
     }
     hunterError(`commander: ALL PHASES FAILED — no successful result`);
-    throw new HunterError(502, "COMMANDER_ALL_PHASES_FAILED", "All commander phases failed", {
-      phases: state.phaseResults
-    });
+    throw new HunterError(
+      502,
+      "COMMANDER_ALL_PHASES_FAILED",
+      localizeByLocale(locale, {
+        en: "All commander phases failed",
+        zh: "指挥模式的所有阶段都失败了"
+      }),
+      {
+        phases: state.phaseResults
+      }
+    );
   }
 
   const resolvedFinalMessage =
     interruptReason && finalMessage.trim().length > 0
-      ? `${finalMessage}\n\nExecution interrupted before all planned phases completed.`
+      ? `${finalMessage}\n\n${localizeByLocale(locale, {
+          en: "Execution interrupted before all planned phases completed.",
+          zh: "在所有计划阶段完成之前，执行已中断。"
+        })}`
       : interruptReason
-        ? "Commander interrupted before all planned phases completed."
+        ? localizeByLocale(locale, {
+            en: "Commander interrupted before all planned phases completed.",
+            zh: "在所有计划阶段完成之前，指挥模式已中断。"
+          })
         : finalMessage;
 
   const result = toCommanderResult(
@@ -614,7 +688,8 @@ export async function runCommanderHunter(
     resolvedFinalMessage,
     state.latestSuccessfulRun,
     state.phaseResults,
-    state.budget
+    state.budget,
+    locale
   );
   emitTrace(options, "run_completed", {
     mode: result.mode,

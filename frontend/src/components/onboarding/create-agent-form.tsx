@@ -1,8 +1,8 @@
 'use client';
 
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useI18n } from '@/components/i18n/locale-provider';
 import { useOnboarding, type AgentRole } from '@/hooks/use-onboarding';
 import { useWallet } from '@/hooks/use-wallet';
 import { motion, AnimatePresence } from 'motion/react';
@@ -15,15 +15,15 @@ import { useEffect } from 'react';
 /* ─── Constants ─── */
 
 const STEPS = [
-    { id: 'connect_wallet' as const, label: 'Wallet', icon: Wallet },
-    { id: 'fill_profile' as const, label: 'Profile', icon: User },
-    { id: 'review' as const, label: 'Review', icon: Eye },
-    { id: 'complete' as const, label: 'Done', icon: CheckCircle2 },
+    { id: 'connect_wallet' as const, labelKey: 'onboarding.step.wallet', icon: Wallet },
+    { id: 'fill_profile' as const, labelKey: 'onboarding.step.profile', icon: User },
+    { id: 'review' as const, labelKey: 'onboarding.step.review', icon: Eye },
+    { id: 'complete' as const, labelKey: 'onboarding.step.done', icon: CheckCircle2 },
 ];
 
-const ROLE_OPTIONS: Array<{ value: AgentRole; label: string; desc: string }> = [
-    { value: 'hunter', label: '🔍 Hunter', desc: 'Discover and consume services' },
-    { value: 'writer', label: '✍️ Writer', desc: 'Provide content generation services' },
+const ROLE_OPTIONS: Array<{ value: AgentRole; icon: string; labelKey: string; descKey: string }> = [
+    { value: 'hunter', icon: '🔍', labelKey: 'onboarding.role.hunter.label', descKey: 'onboarding.role.hunter.desc' },
+    { value: 'writer', icon: '✍️', labelKey: 'onboarding.role.writer.label', descKey: 'onboarding.role.writer.desc' },
 ];
 
 function shortenAddr(addr: string): string {
@@ -37,6 +37,7 @@ interface CreateAgentFormProps {
 }
 
 export function CreateAgentForm({ onComplete }: CreateAgentFormProps) {
+    const { t } = useI18n();
     const { state, setWalletAddress, updateForm, goToReview, submit, reset, setStep } = useOnboarding();
     const wallet = useWallet();
     const stepIndex = STEPS.findIndex((s) => s.id === state.step);
@@ -50,22 +51,24 @@ export function CreateAgentForm({ onComplete }: CreateAgentFormProps) {
 
     return (
         <div className="max-w-lg mx-auto">
-            {/* ─── Step indicator ─── */}
-            <div className="flex items-center justify-center gap-2 mb-8">
+            {/* ─── Step indicator (terminal style — no rounded, minimal) ─── */}
+            <div className="flex items-center justify-center gap-1 mb-6">
                 {STEPS.map((s, i) => {
                     const Icon = s.icon;
                     const isDone = i < stepIndex;
                     const isActive = i === stepIndex;
                     return (
-                        <div key={s.id} className="flex items-center gap-2">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition-all ${isDone ? 'bg-green-100 text-green-700'
-                                    : isActive ? 'bg-warm-900 text-warm-100'
-                                        : 'bg-muted text-muted-foreground'
+                        <div key={s.id} className="flex items-center gap-1">
+                            <div className={`w-6 h-6 flex items-center justify-center text-[10px] border transition-all ${isDone
+                                    ? 'bg-green-500/15 border-green-500/30 text-green-400'
+                                    : isActive
+                                        ? 'bg-primary/10 border-primary/30 text-primary text-glow'
+                                        : 'bg-card border-border text-muted-foreground'
                                 }`}>
-                                {isDone ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-3.5 h-3.5" />}
+                                {isDone ? <CheckCircle2 className="w-3 h-3" /> : <Icon className="w-2.5 h-2.5" />}
                             </div>
                             {i < STEPS.length - 1 && (
-                                <div className={`w-8 h-0.5 ${i < stepIndex ? 'bg-green-300' : 'bg-muted'}`} />
+                                <div className={`w-5 h-px ${i < stepIndex ? 'bg-green-500/30' : 'bg-border'}`} />
                             )}
                         </div>
                     );
@@ -83,59 +86,61 @@ export function CreateAgentForm({ onComplete }: CreateAgentFormProps) {
                 >
                     {/* Step 1: Connect Wallet */}
                     {state.step === 'connect_wallet' && (
-                        <Card className="p-8 text-center">
-                            <Wallet className="w-12 h-12 mx-auto text-warm-600 mb-4" />
-                            <h2 className="text-lg font-heading font-semibold mb-2">Connect Your Wallet</h2>
-                            <p className="text-sm text-muted-foreground mb-6">
-                                Your wallet will be bound to your Agent identity on Monad.
+                        <div className="border border-border bg-card p-8 text-center">
+                            <div className="w-12 h-12 border border-primary/20 bg-primary/5 flex items-center justify-center mx-auto mb-4">
+                                <Wallet className="w-5 h-5 text-primary" />
+                            </div>
+                            <h2 className="text-sm font-heading font-semibold mb-1.5">{t('onboarding.connect.title')}</h2>
+                            <p className="text-[11px] text-muted-foreground mb-5 max-w-xs mx-auto">
+                                {t('onboarding.connect.body')}
                             </p>
-                            <Button
+                            <button
                                 onClick={() => void wallet.connect()}
                                 disabled={wallet.connecting}
-                                className="bg-warm-900 text-warm-100 hover:bg-warm-800 rounded-full px-8"
+                                className="inline-flex items-center gap-2 px-5 py-2 border border-primary/40 text-primary text-xs hover:bg-primary/10 hover:text-glow transition-all cursor-pointer disabled:opacity-50"
                             >
                                 {wallet.connecting ? (
-                                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Connecting...</>
+                                    <><Loader2 className="w-3.5 h-3.5 animate-spin" /> {t('onboarding.connect.connecting')}</>
                                 ) : (
-                                    <><Wallet className="w-4 h-4 mr-2" /> Connect Wallet</>
+                                    <><Wallet className="w-3.5 h-3.5" /> {t('onboarding.connect.button')}</>
                                 )}
-                            </Button>
+                            </button>
                             {wallet.label && (
-                                <p className="mt-3 text-xs text-muted-foreground">via {wallet.label}</p>
+                                <p className="mt-3 text-[10px] text-muted-foreground">{t('onboarding.connect.via', { label: wallet.label })}</p>
                             )}
-                        </Card>
+                        </div>
                     )}
 
                     {/* Step 2: Fill Profile */}
                     {state.step === 'fill_profile' && (
-                        <Card className="p-6 space-y-5">
-                            <h2 className="text-lg font-heading font-semibold">Agent Profile</h2>
+                        <div className="border border-border bg-card p-5 space-y-4">
+                            <h2 className="text-sm font-heading font-semibold">{t('onboarding.profile.title')}</h2>
 
                             {/* Connected wallet banner */}
                             {state.walletAddress && (
-                                <div className="rounded-lg bg-green-50 border border-green-200 p-3 flex items-center gap-2 text-xs">
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                                    <span className="text-green-800">
-                                        Connected: <span className="font-mono">{shortenAddr(state.walletAddress)}</span>
+                                <div className="border border-green-500/20 bg-green-500/5 p-2 flex items-center gap-2 text-[11px]">
+                                    <CheckCircle2 className="w-3 h-3 text-green-400 shrink-0" />
+                                    <span className="text-green-300 font-mono">
+                                        {t('onboarding.profile.connected', { address: shortenAddr(state.walletAddress) })}
                                     </span>
                                 </div>
                             )}
 
                             {/* Role */}
                             <div>
-                                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Role</label>
-                                <div className="grid grid-cols-2 gap-3 mt-2">
+                                <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t('onboarding.profile.role')}</label>
+                                <div className="grid grid-cols-2 gap-2 mt-1.5">
                                     {ROLE_OPTIONS.map((opt) => (
                                         <button
                                             key={opt.value}
                                             onClick={() => updateForm({ role: opt.value })}
-                                            className={`p-3 rounded-lg border text-left transition-all ${state.form.role === opt.value
-                                                    ? 'border-warm-600 bg-warm-100/50 shadow-sm'
-                                                    : 'border-border hover:border-warm-400'
+                                            className={`p-2.5 border text-left transition-all ${state.form.role === opt.value
+                                                    ? 'border-primary/40 bg-primary/5'
+                                                    : 'border-border bg-card hover:border-primary/20'
                                                 }`}
                                         >
-                                            <p className="text-sm font-semibold">{opt.label}</p>
-                                            <p className="text-[11px] text-muted-foreground mt-0.5">{opt.desc}</p>
+                                            <p className="text-xs font-semibold">{opt.icon} {t(opt.labelKey)}</p>
+                                            <p className="text-[10px] text-muted-foreground mt-0.5">{t(opt.descKey)}</p>
                                         </button>
                                     ))}
                                 </div>
@@ -143,32 +148,32 @@ export function CreateAgentForm({ onComplete }: CreateAgentFormProps) {
 
                             {/* Name */}
                             <div>
-                                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Agent Name</label>
+                                <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t('onboarding.profile.name')}</label>
                                 <input
                                     type="text"
-                                    placeholder="My First Agent"
+                                    placeholder={t('onboarding.profile.namePlaceholder')}
                                     value={state.form.name}
                                     onChange={(e) => updateForm({ name: e.target.value })}
-                                    className="mt-1.5 w-full h-10 px-3 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-warm-500/30 focus:border-warm-500"
+                                    className="mt-1 w-full h-8 px-3 border border-border bg-background text-xs placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40"
                                 />
                             </div>
 
                             {/* Description */}
                             <div>
-                                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</label>
+                                <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t('onboarding.profile.description')}</label>
                                 <textarea
-                                    placeholder="What does this agent do?"
+                                    placeholder={t('onboarding.profile.descriptionPlaceholder')}
                                     value={state.form.description}
                                     onChange={(e) => updateForm({ description: e.target.value })}
-                                    rows={3}
-                                    className="mt-1.5 w-full px-3 py-2 rounded-lg border border-border bg-card text-sm resize-none focus:outline-none focus:ring-2 focus:ring-warm-500/30 focus:border-warm-500"
+                                    rows={2}
+                                    className="mt-1 w-full px-3 py-2 border border-border bg-background text-xs resize-none placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40"
                                 />
                             </div>
 
-                            {/* Trust */}
+                            {/* Trust Models */}
                             <div>
-                                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Trust Model</label>
-                                <div className="flex gap-2 mt-2">
+                                <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t('onboarding.profile.trust')}</label>
+                                <div className="flex gap-2 mt-1.5">
                                     {['reputation', 'crypto-economic'].map((m) => (
                                         <button
                                             key={m}
@@ -177,102 +182,108 @@ export function CreateAgentForm({ onComplete }: CreateAgentFormProps) {
                                                 const next = c.includes(m) ? c.filter((x) => x !== m) : [...c, m];
                                                 updateForm({ trustModels: next.length > 0 ? next : ['reputation'] });
                                             }}
-                                            className={`px-3 py-1.5 rounded-full text-xs border transition-all ${state.form.trustModels.includes(m)
-                                                    ? 'bg-warm-900 text-warm-100 border-warm-900'
-                                                    : 'bg-card text-foreground border-border hover:border-warm-400'
+                                            className={`px-2.5 py-1 text-[10px] border transition-all ${state.form.trustModels.includes(m)
+                                                    ? 'bg-primary/10 text-primary border-primary/30'
+                                                    : 'bg-card text-muted-foreground border-border hover:border-primary/20'
                                                 }`}
                                         >
-                                            {m}
+                                            {t(`onboarding.trust.${m}`)}
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
                             {/* Nav */}
-                            <div className="flex justify-between pt-2">
-                                <Button variant="outline" onClick={() => setStep('connect_wallet')} className="rounded-full">
-                                    <ArrowLeft className="w-4 h-4 mr-1" /> Back
+                            <div className="flex justify-between pt-1">
+                                <Button variant="outline" size="sm" onClick={() => setStep('connect_wallet')} className="rounded-none border-border text-[11px] h-7 px-3">
+                                    <ArrowLeft className="w-3 h-3 mr-1" /> {t('onboarding.profile.back')}
                                 </Button>
                                 <Button
+                                    size="sm"
                                     onClick={goToReview}
                                     disabled={!state.form.name.trim()}
-                                    className="bg-warm-900 text-warm-100 hover:bg-warm-800 rounded-full"
+                                    className="rounded-none bg-primary text-primary-foreground hover:bg-primary/90 text-[11px] h-7 px-3"
                                 >
-                                    Review <ArrowRight className="w-4 h-4 ml-1" />
+                                    {t('onboarding.profile.review')} <ArrowRight className="w-3 h-3 ml-1" />
                                 </Button>
                             </div>
-                        </Card>
+                        </div>
                     )}
 
                     {/* Step 3: Review */}
                     {state.step === 'review' && (
-                        <Card className="p-6 space-y-4">
-                            <h2 className="text-lg font-heading font-semibold">Review & Create</h2>
-                            <div className="rounded-lg bg-muted/50 p-4 space-y-3 text-sm">
+                        <div className="border border-border bg-card p-5 space-y-4">
+                            <h2 className="text-sm font-heading font-semibold">{t('onboarding.review.title')}</h2>
+                            <div className="border border-border bg-background p-3 space-y-2.5 font-mono text-[11px]">
                                 <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Wallet</span>
-                                    <span className="font-mono text-xs">{state.walletAddress ? shortenAddr(state.walletAddress) : '—'}</span>
+                                    <span className="text-muted-foreground">{t('onboarding.review.wallet')}</span>
+                                    <span className="text-primary">{state.walletAddress ? shortenAddr(state.walletAddress) : '—'}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-muted-foreground">{t('onboarding.review.role')}</span>
+                                    <Badge className="bg-primary/10 text-primary border border-primary/20 rounded-none text-[10px] px-1.5 py-0">
+                                        {t(`onboarding.role.${state.form.role}.label`)}
+                                    </Badge>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Role</span>
-                                    <Badge className="bg-warm-200 text-warm-900 rounded-full text-xs">{state.form.role}</Badge>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Name</span>
-                                    <span className="font-semibold">{state.form.name}</span>
+                                    <span className="text-muted-foreground">{t('onboarding.review.name')}</span>
+                                    <span className="text-foreground font-semibold">{state.form.name}</span>
                                 </div>
                                 <div className="flex justify-between items-start">
-                                    <span className="text-muted-foreground">Trust</span>
+                                    <span className="text-muted-foreground">{t('onboarding.review.trust')}</span>
                                     <div className="flex gap-1">
                                         {state.form.trustModels.map((m) => (
-                                            <Badge key={m} variant="outline" className="text-[10px] rounded-full">{m}</Badge>
+                                            <Badge key={m} variant="outline" className="text-[10px] rounded-none border-border px-1.5 py-0">{t(`onboarding.trust.${m}`)}</Badge>
                                         ))}
                                     </div>
                                 </div>
                             </div>
 
                             {state.error && (
-                                <div className="flex items-center gap-2 text-xs text-destructive">
-                                    <AlertCircle className="w-3.5 h-3.5" /> {state.error}
+                                <div className="flex items-center gap-2 text-[11px] text-destructive">
+                                    <AlertCircle className="w-3 h-3" /> {state.error}
                                 </div>
                             )}
 
-                            <div className="flex justify-between pt-2">
-                                <Button variant="outline" onClick={() => setStep('fill_profile')} className="rounded-full">
-                                    <ArrowLeft className="w-4 h-4 mr-1" /> Edit
+                            <div className="flex justify-between pt-1">
+                                <Button variant="outline" size="sm" onClick={() => setStep('fill_profile')} className="rounded-none border-border text-[11px] h-7 px-3">
+                                    <ArrowLeft className="w-3 h-3 mr-1" /> {t('onboarding.review.edit')}
                                 </Button>
                                 <Button
+                                    size="sm"
                                     onClick={() => void submit()}
                                     disabled={state.submitting}
-                                    className="bg-warm-900 text-warm-100 hover:bg-warm-800 rounded-full"
+                                    className="rounded-none bg-primary text-primary-foreground hover:bg-primary/90 text-[11px] h-7 px-3"
                                 >
-                                    {state.submitting ? 'Creating...' : 'Create Agent'}
-                                    <Sparkles className="w-4 h-4 ml-1" />
+                                    {state.submitting ? t('onboarding.review.creating') : t('onboarding.review.create')}
+                                    <Sparkles className="w-3 h-3 ml-1" />
                                 </Button>
                             </div>
-                        </Card>
+                        </div>
                     )}
 
                     {/* Step 4: Complete */}
                     {state.step === 'complete' && (
-                        <Card className="p-8 text-center">
+                        <div className="border border-border bg-card p-8 text-center">
                             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300 }}>
-                                <CheckCircle2 className="w-16 h-16 mx-auto text-green-600 mb-4" />
+                                <div className="w-14 h-14 border border-green-500/20 bg-green-500/10 flex items-center justify-center mx-auto mb-4">
+                                    <CheckCircle2 className="w-7 h-7 text-green-400" />
+                                </div>
                             </motion.div>
-                            <h2 className="text-lg font-heading font-semibold mb-2">Agent Created!</h2>
-                            <p className="text-sm text-muted-foreground mb-1">
-                                <strong>{state.form.name}</strong> is ready on Monad.
+                            <h2 className="text-sm font-heading font-semibold mb-1.5">{t('onboarding.complete.title')}</h2>
+                            <p className="text-[11px] text-muted-foreground mb-1">
+                                {t('onboarding.complete.body', { name: state.form.name })}
                             </p>
-                            <p className="text-[11px] text-muted-foreground/70 font-mono mb-6">
+                            <p className="text-[10px] text-primary font-mono mb-5">
                                 {state.walletAddress ? shortenAddr(state.walletAddress) : ''}
                             </p>
-                            <div className="flex gap-3 justify-center">
-                                <Button onClick={() => { reset(); }} variant="outline" className="rounded-full">Create Another</Button>
-                                <Button onClick={() => onComplete?.()} className="bg-warm-900 text-warm-100 hover:bg-warm-800 rounded-full">
-                                    Go to Dashboard <ArrowRight className="w-4 h-4 ml-1" />
+                            <div className="flex gap-2 justify-center">
+                                <Button onClick={() => { reset(); }} variant="outline" size="sm" className="rounded-none border-border text-[11px] h-7 px-3">{t('onboarding.complete.createAnother')}</Button>
+                                <Button onClick={() => onComplete?.()} size="sm" className="rounded-none bg-primary text-primary-foreground hover:bg-primary/90 text-[11px] h-7 px-3">
+                                    {t('onboarding.complete.goDashboard')} <ArrowRight className="w-3 h-3 ml-1" />
                                 </Button>
                             </div>
-                        </Card>
+                        </div>
                     )}
                 </motion.div>
             </AnimatePresence>

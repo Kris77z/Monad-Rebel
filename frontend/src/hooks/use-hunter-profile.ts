@@ -3,9 +3,11 @@
 import useSWR from 'swr';
 import { useEffect, useMemo } from 'react';
 import type { HunterProfile } from '@/types/hunter-profile';
+import { useI18n } from '@/components/i18n/locale-provider';
+import type { LanguageCode } from '@/types/agent';
 
-const PROFILE_CACHE_KEY = 'rebel_hunter_profile_cache_v1';
-const PROFILE_CACHE_VERSION = 1;
+const PROFILE_CACHE_KEY = 'rebel_hunter_profile_cache_v2';
+const PROFILE_CACHE_VERSION = 2;
 const DEFAULT_CACHE_TTL_MS = 10 * 60 * 1000;
 
 interface PersistedProfileCache {
@@ -30,10 +32,14 @@ function parsePositiveInt(value: string | undefined): number | null {
   return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : null;
 }
 
-function readCachedProfile(ttlMs: number): HunterProfile | undefined {
+function getProfileCacheKey(locale: LanguageCode): string {
+  return `${PROFILE_CACHE_KEY}:${locale}`;
+}
+
+function readCachedProfile(locale: LanguageCode, ttlMs: number): HunterProfile | undefined {
   if (typeof window === 'undefined') return undefined;
   try {
-    const raw = localStorage.getItem(PROFILE_CACHE_KEY);
+    const raw = localStorage.getItem(getProfileCacheKey(locale));
     if (!raw) return undefined;
     const parsed = JSON.parse(raw) as PersistedProfileCache;
     if (
@@ -42,12 +48,12 @@ function readCachedProfile(ttlMs: number): HunterProfile | undefined {
       !parsed.profile ||
       typeof parsed.profile !== 'object'
     ) {
-      localStorage.removeItem(PROFILE_CACHE_KEY);
+      localStorage.removeItem(getProfileCacheKey(locale));
       return undefined;
     }
     const ageMs = Date.now() - parsed.savedAt;
     if (ageMs > ttlMs) {
-      localStorage.removeItem(PROFILE_CACHE_KEY);
+      localStorage.removeItem(getProfileCacheKey(locale));
       return undefined;
     }
     return parsed.profile;
@@ -56,7 +62,7 @@ function readCachedProfile(ttlMs: number): HunterProfile | undefined {
   }
 }
 
-function writeCachedProfile(profile: HunterProfile): void {
+function writeCachedProfile(locale: LanguageCode, profile: HunterProfile): void {
   if (typeof window === 'undefined') return;
   try {
     const payload: PersistedProfileCache = {
@@ -64,14 +70,14 @@ function writeCachedProfile(profile: HunterProfile): void {
       savedAt: Date.now(),
       profile,
     };
-    localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(payload));
+    localStorage.setItem(getProfileCacheKey(locale), JSON.stringify(payload));
   } catch {
     // Ignore storage errors and continue with in-memory SWR cache.
   }
 }
 
-async function fetchHunterProfile(): Promise<HunterProfile> {
-  const response = await fetch('/api/hunter/profile', { cache: 'no-store' });
+async function fetchHunterProfile(locale: LanguageCode): Promise<HunterProfile> {
+  const response = await fetch(`/api/hunter/profile?locale=${encodeURIComponent(locale)}`, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
   }
@@ -79,15 +85,16 @@ async function fetchHunterProfile(): Promise<HunterProfile> {
 }
 
 export function useHunterProfile(options: UseHunterProfileOptions = {}) {
+  const { locale } = useI18n();
   const configuredRefreshMs = parsePositiveInt(process.env.NEXT_PUBLIC_HUNTER_PROFILE_REFRESH_MS);
   const configuredCacheTtlMs = parsePositiveInt(process.env.NEXT_PUBLIC_HUNTER_PROFILE_CACHE_TTL_MS);
   const refreshIntervalMs = options.refreshIntervalMs ?? configuredRefreshMs ?? 0;
   const cacheTtlMs = options.cacheTtlMs ?? configuredCacheTtlMs ?? DEFAULT_CACHE_TTL_MS;
-  const fallbackData = useMemo(() => readCachedProfile(cacheTtlMs), [cacheTtlMs]);
+  const fallbackData = useMemo(() => readCachedProfile(locale, cacheTtlMs), [cacheTtlMs, locale]);
 
-  const { data, error, isLoading, mutate } = useSWR<HunterProfile>(
-    '/api/hunter/profile',
-    fetchHunterProfile,
+  const { data, error, isLoading, mutate } = useSWR<HunterProfile, Error, [string, LanguageCode]>(
+    ['/api/hunter/profile', locale],
+    ([, activeLocale]) => fetchHunterProfile(activeLocale),
     {
       fallbackData,
       refreshInterval: refreshIntervalMs,
@@ -102,8 +109,8 @@ export function useHunterProfile(options: UseHunterProfileOptions = {}) {
 
   useEffect(() => {
     if (!data) return;
-    writeCachedProfile(data);
-  }, [data]);
+    writeCachedProfile(locale, data);
+  }, [data, locale]);
 
   return {
     profile: data ?? null,

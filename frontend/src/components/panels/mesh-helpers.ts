@@ -37,23 +37,23 @@ export interface ServiceMeta {
 
 /* ── Constants ── */
 
-export const AGENT_KIND_STYLE: Record<AgentKind, { marker: string; label: string; cls: string }> = {
-    writer: { marker: 'W', label: 'WRITER', cls: 'text-sky-700' },
-    auditor: { marker: 'A', label: 'AUDITOR', cls: 'text-amber-700' },
-    defi: { marker: 'D', label: 'ANALYST', cls: 'text-emerald-700' },
-    gas: { marker: 'G', label: 'GAS', cls: 'text-orange-600' },
-    scanner: { marker: 'S', label: 'SCANNER', cls: 'text-red-600' },
-    decoder: { marker: 'T', label: 'DECODER', cls: 'text-indigo-600' },
-    abi: { marker: 'I', label: 'ABI', cls: 'text-violet-600' },
-    yield: { marker: 'Y', label: 'YIELD', cls: 'text-teal-600' },
-    unknown: { marker: '?', label: 'UNKNOWN', cls: 'text-muted-foreground' },
+export const AGENT_KIND_STYLE: Record<AgentKind, { marker: string; labelKey: string; cls: string }> = {
+    writer: { marker: 'W', labelKey: 'mesh.kind.writer', cls: 'text-sky-700' },
+    auditor: { marker: 'A', labelKey: 'mesh.kind.auditor', cls: 'text-amber-700' },
+    defi: { marker: 'D', labelKey: 'mesh.kind.defi', cls: 'text-emerald-700' },
+    gas: { marker: 'G', labelKey: 'mesh.kind.gas', cls: 'text-orange-600' },
+    scanner: { marker: 'S', labelKey: 'mesh.kind.scanner', cls: 'text-red-600' },
+    decoder: { marker: 'T', labelKey: 'mesh.kind.decoder', cls: 'text-indigo-600' },
+    abi: { marker: 'I', labelKey: 'mesh.kind.abi', cls: 'text-violet-600' },
+    yield: { marker: 'Y', labelKey: 'mesh.kind.yield', cls: 'text-teal-600' },
+    unknown: { marker: '?', labelKey: 'mesh.kind.unknown', cls: 'text-muted-foreground' },
 };
 
-export const STATUS_TERMINAL: Record<MeshNode['status'], { marker: string; cls: string }> = {
-    online: { marker: '[● ONLINE]', cls: 'text-green-600' },
-    selected: { marker: '[◉ SELECTED]', cls: 'text-primary text-glow' },
-    used: { marker: '[◌ USED]', cls: 'text-sky-600' },
-    failed: { marker: '[✗ FAILED]', cls: 'text-red-600' },
+export const STATUS_TERMINAL: Record<MeshNode['status'], { marker: string; labelKey: string; cls: string }> = {
+    online: { marker: '●', labelKey: 'mesh.status.online', cls: 'text-green-600' },
+    selected: { marker: '◉', labelKey: 'mesh.status.selected', cls: 'text-primary text-glow' },
+    used: { marker: '◌', labelKey: 'mesh.status.used', cls: 'text-sky-600' },
+    failed: { marker: '✗', labelKey: 'mesh.status.failed', cls: 'text-red-600' },
 };
 
 export const TREND_STYLE: Record<'up' | 'down' | 'stable', { marker: string; cls: string }> = {
@@ -110,15 +110,6 @@ export function cardGlowClass(node: MeshNode): string {
     if (node.reputation >= 4.0) return 'border-green-500/40';
     if (node.reputation > 0 && node.reputation < 2.5) return 'border-border opacity-50';
     return 'border-border';
-}
-
-export function timeAgo(timestamp: number | undefined): string {
-    if (!timestamp || timestamp <= 0) return 'never';
-    const seconds = Math.floor(Date.now() / 1000) - timestamp;
-    if (seconds < 60) return 'just now';
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-    return `${Math.floor(seconds / 86400)}d ago`;
 }
 
 /* ── Data parsing ── */

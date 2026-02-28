@@ -1,6 +1,8 @@
 'use client';
 
+import { useI18n } from '@/components/i18n/locale-provider';
 import { formatMON } from '@/lib/format';
+import { formatRelativeMilliseconds } from '@/lib/i18n';
 import type { MissionRecord } from '@/hooks/use-mission-history';
 import { CheckCircle2, XCircle, Clock, Trash2, X } from 'lucide-react';
 
@@ -12,18 +14,6 @@ interface MissionHistoryDrawerProps {
     onSelect?: (goal: string) => void;
 }
 
-/** Format timestamp to relative or short date */
-function timeAgo(ts: number): string {
-    const diff = Date.now() - ts;
-    const mins = Math.floor(diff / 60_000);
-    if (mins < 1) return 'just now';
-    if (mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
-    const days = Math.floor(hrs / 24);
-    return `${days}d ago`;
-}
-
 /**
  * Slide-out drawer showing mission execution history.
  * Terminal-styled, slides from the left.
@@ -31,6 +21,8 @@ function timeAgo(ts: number): string {
 export function MissionHistoryDrawer({
     open, onClose, history, onClear, onSelect,
 }: MissionHistoryDrawerProps) {
+    const { locale, t } = useI18n();
+
     return (
         <>
             {/* Backdrop */}
@@ -56,7 +48,7 @@ export function MissionHistoryDrawer({
                             <button
                                 onClick={onClear}
                                 className="text-muted-foreground hover:text-red-500 transition-colors cursor-pointer"
-                                title="Clear history"
+                                title={t('history.clear')}
                             >
                                 <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -75,7 +67,7 @@ export function MissionHistoryDrawer({
                     {history.length === 0 ? (
                         <div className="flex items-center justify-center h-full">
                             <p className="text-xs text-muted-foreground">
-                                no missions yet<span className="cursor-blink">_</span>
+                                {t('history.empty')}<span className="cursor-blink">_</span>
                             </p>
                         </div>
                     ) : (
@@ -91,13 +83,13 @@ export function MissionHistoryDrawer({
                                         <span className={`flex items-center gap-1 text-[10px] ${rec.status === 'completed' ? 'text-green-600' : 'text-red-600'
                                             }`}>
                                             {rec.status === 'completed'
-                                                ? <><CheckCircle2 className="w-3 h-3" /> COMPLETED</>
-                                                : <><XCircle className="w-3 h-3" /> ERROR</>
+                                                ? <><CheckCircle2 className="w-3 h-3" /> {t('history.completed')}</>
+                                                : <><XCircle className="w-3 h-3" /> {t('history.error')}</>
                                             }
                                         </span>
                                         <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                                             <Clock className="w-2.5 h-2.5" />
-                                            {timeAgo(rec.timestamp)}
+                                            {formatRelativeMilliseconds(locale, rec.timestamp)}
                                         </span>
                                     </div>
 

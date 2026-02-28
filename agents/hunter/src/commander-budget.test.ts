@@ -65,6 +65,35 @@ describe("commander-budget", () => {
     );
   });
 
+  it("localizes budget reasons for zh-CN", () => {
+    assert.equal(
+      getCommanderBudgetBlockReason({
+        budget: {
+          maxPhases: 2,
+          phaseCount: 2,
+          maxPerPhaseWei: "10",
+          maxTotalWei: "100",
+          spentWei: "20"
+        },
+        locale: "zh-CN"
+      }),
+      "已达到阶段上限（2）。"
+    );
+
+    const total = applyCommanderPhaseSpend({
+      budget: {
+        maxPhases: 6,
+        phaseCount: 0,
+        maxPerPhaseWei: "100",
+        maxTotalWei: "90",
+        spentWei: "50"
+      },
+      phaseSpentWei: "40",
+      locale: "zh-CN"
+    });
+    assert.match(total.stopReason ?? "", /总花费已达到/);
+  });
+
   it("applyCommanderPhaseSpend increments counters", () => {
     const updated = applyCommanderPhaseSpend({
       budget: {

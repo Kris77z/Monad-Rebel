@@ -1,6 +1,7 @@
 import type {
   ErrorResponse,
   ExecuteSuccessResponse,
+  LanguageCode,
   PaymentRequiredResponse,
   ServiceInfo
 } from "@rebel/shared";
@@ -10,12 +11,14 @@ interface RequestServiceInput {
   service: ServiceInfo;
   taskType: string;
   taskInput: string;
+  locale?: LanguageCode;
 }
 
 interface RequestServiceWithFallbackInput {
   services: ServiceInfo[];
   taskType: string;
   taskInput: string;
+  locale?: LanguageCode;
 }
 
 function normalizeEndpoint(endpoint: string): string {
@@ -41,7 +44,8 @@ export async function requestServiceQuote(
     },
     body: JSON.stringify({
       taskType: input.taskType,
-      taskInput: input.taskInput
+      taskInput: input.taskInput,
+      locale: input.locale
     })
   });
 
@@ -73,7 +77,8 @@ export async function requestServiceQuoteWithFallback(
       const quote = await requestServiceQuote({
         service,
         taskType: input.taskType,
-        taskInput: input.taskInput
+        taskInput: input.taskInput,
+        locale: input.locale
       });
       attempts.push({ serviceId: service.id, ok: true });
       return {
@@ -103,6 +108,7 @@ export async function submitPaymentAndGetResult(input: {
   taskType: string;
   taskInput: string;
   timestamp: number;
+  locale?: LanguageCode;
 }): Promise<ExecuteSuccessResponse> {
   const response = await fetch(`${normalizeEndpoint(input.service.endpoint)}/execute`, {
     method: "POST",
@@ -113,7 +119,8 @@ export async function submitPaymentAndGetResult(input: {
       paymentTx: input.paymentTx,
       taskType: input.taskType,
       taskInput: input.taskInput,
-      timestamp: input.timestamp
+      timestamp: input.timestamp,
+      locale: input.locale
     })
   });
 

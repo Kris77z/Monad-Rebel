@@ -1,4 +1,8 @@
 import { randomUUID } from "node:crypto";
+import {
+  localizeByLocale,
+  DEFAULT_LANGUAGE_CODE,
+} from "@rebel/shared";
 import type {
   HunterServiceTaskType,
   NativeTransferAccept,
@@ -174,6 +178,7 @@ export async function executePhase(
   options: HunterRunOptions = {},
   executeOptions: ExecutePhaseOptions = {}
 ): Promise<SingleHunterRunResult> {
+  const locale = options.locale ?? DEFAULT_LANGUAGE_CODE;
   const missionId = executeOptions.missionId ?? randomUUID();
   const emitLifecycleEvents = executeOptions.emitLifecycleEvents ?? true;
 
@@ -187,7 +192,8 @@ export async function executePhase(
     emitTrace(options, "run_started", {
       mode: "scripted",
       goal,
-      preferredTaskType: executeOptions.preferredTaskType
+      preferredTaskType: executeOptions.preferredTaskType,
+      locale
     });
   }
 
@@ -230,7 +236,8 @@ export async function executePhase(
   const quoteRequest = await requestServiceQuoteWithFallback({
     services: serviceCandidates,
     taskType,
-    taskInput: goal
+    taskInput: goal,
+    locale
   });
   const selectedService = quoteRequest.service;
   if (selectedService.id !== service.id) {
@@ -296,7 +303,8 @@ export async function executePhase(
       paymentTx: payment.txHash,
       taskType: quote.paymentContext.taskType,
       taskInput: goal,
-      timestamp: quote.paymentContext.timestamp
+      timestamp: quote.paymentContext.timestamp,
+      locale
     });
   } finally {
     clearInterval(executionHeartbeat);
@@ -318,7 +326,14 @@ export async function executePhase(
   });
   if (!receiptCheck.isValid) {
     hunterError(`verify: receipt INVALID for ${execution.receipt.requestHash}`);
-    throw new HunterError(422, "RECEIPT_INVALID", "Receipt signature verification failed");
+    throw new HunterError(
+      422,
+      "RECEIPT_INVALID",
+      localizeByLocale(locale, {
+        en: "Receipt signature verification failed",
+        zh: "回执签名验证失败"
+      })
+    );
   }
   hunterLog(`verify: receipt valid ✓`);
   const evaluation = evaluateResultTool(execution.result);
@@ -344,6 +359,7 @@ export async function executePhase(
     taskType: quote.paymentContext.taskType,
     score: evaluation.score,
     result: execution.result,
+    locale,
     evaluationSummary: evaluation.summary
   });
   emitTrace(options, "tool_result", {
@@ -366,7 +382,10 @@ export async function executePhase(
     receiptVerified: receiptCheck.isValid,
     evaluation,
     reflection,
-    finalMessage: "Scripted flow completed successfully."
+    finalMessage: localizeByLocale(locale, {
+      en: "Scripted flow completed successfully.",
+      zh: "脚本流程已成功完成。"
+    })
   };
   if (emitLifecycleEvents) {
     emitTrace(options, "run_completed", {

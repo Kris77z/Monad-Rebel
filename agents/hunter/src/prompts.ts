@@ -1,3 +1,5 @@
+import { DEFAULT_LANGUAGE_CODE, buildOutputLanguageInstruction, type LanguageCode } from "@rebel/shared";
+
 export const HUNTER_BASE_PROMPT = `
 You are Hunter Agent in an agent economy.
 Goal: find services, evaluate value, request quote, pay, submit payment, verify receipt.
@@ -10,8 +12,15 @@ Use tools to complete the workflow end-to-end.
 When receipt verification fails, report a dispute.
 `.trim();
 
-export function buildHunterSystemPrompt(memoryContext: string, reputationContext = "No reputation context available."): string {
+export function buildHunterSystemPrompt(
+  memoryContext: string,
+  reputationContext = "No reputation context available.",
+  locale: LanguageCode = DEFAULT_LANGUAGE_CODE
+): string {
   return `${HUNTER_BASE_PROMPT}
+
+Output language:
+${buildOutputLanguageInstruction({ locale })}
 
 Mission memory:
 ${memoryContext}

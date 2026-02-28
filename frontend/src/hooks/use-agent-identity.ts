@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiBase } from '@/lib/api-config';
+import { useI18n } from '@/components/i18n/locale-provider';
 
 /* ─── Types matching backend GET /identity responses ─── */
 
@@ -58,7 +59,7 @@ interface IdentityState {
 
 const IDENTITY_TIMEOUT_MS = 7000;
 
-async function fetchIdentity<T>(url: string): Promise<T> {
+async function fetchIdentity<T>(url: string, t: (key: string, variables?: Record<string, string | number>) => string): Promise<T> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), IDENTITY_TIMEOUT_MS);
 
@@ -68,10 +69,10 @@ async function fetchIdentity<T>(url: string): Promise<T> {
         return (await response.json()) as T;
     } catch (error) {
         if (error instanceof DOMException && error.name === 'AbortError') {
-            throw new Error(`Request timeout (${IDENTITY_TIMEOUT_MS}ms)`);
+            throw new Error(t('identity.timeout', { ms: IDENTITY_TIMEOUT_MS }));
         }
         if (error instanceof TypeError && /fetch/i.test(error.message)) {
-            throw new Error('Agent offline — connection refused');
+            throw new Error(t('identity.offline'));
         }
         throw error instanceof Error ? error : new Error(String(error));
     } finally {
@@ -89,6 +90,7 @@ function toErrorMessage(error: unknown): string {
  * Shows real connection status instead of silent fallback.
  */
 export function useAgentIdentity() {
+    const { t } = useI18n();
     const [state, setState] = useState<IdentityState>({
         hunter: null,
         writer: null,
@@ -101,8 +103,8 @@ export function useAgentIdentity() {
         setState((prev) => ({ ...prev, loading: true, hunterError: null, writerError: null }));
 
         const [hunterRes, writerRes] = await Promise.allSettled([
-            fetchIdentity<HunterIdentityResponse>(`${apiBase.hunter}/identity`),
-            fetchIdentity<WriterIdentityResponse>(`${apiBase.writer}/identity`),
+            fetchIdentity<HunterIdentityResponse>(`${apiBase.hunter}/identity`, t),
+            fetchIdentity<WriterIdentityResponse>(`${apiBase.writer}/identity`, t),
         ]);
 
         setState({
@@ -112,7 +114,7 @@ export function useAgentIdentity() {
             hunterError: hunterRes.status === 'rejected' ? toErrorMessage(hunterRes.reason) : null,
             writerError: writerRes.status === 'rejected' ? toErrorMessage(writerRes.reason) : null,
         });
-    }, []);
+    }, [t]);
 
     useEffect(() => {
         fetchIdentities().catch(() => { /* swallowed — errors handled inside */ });

@@ -1,4 +1,9 @@
-import type { CommanderBudget } from "@rebel/shared";
+import {
+  DEFAULT_LANGUAGE_CODE,
+  localizeByLocale,
+  type CommanderBudget,
+  type LanguageCode
+} from "@rebel/shared";
 import { HunterError } from "./errors.js";
 
 const DEFAULT_MAX_PHASES = 6;
@@ -60,16 +65,23 @@ export function buildCommanderBudget(env: NodeJS.ProcessEnv = process.env): Comm
 export function getCommanderBudgetBlockReason(input: {
   budget: CommanderBudget;
   stopReason?: string;
+  locale?: LanguageCode;
 }): string | null {
-  const { budget, stopReason } = input;
+  const { budget, stopReason, locale = DEFAULT_LANGUAGE_CODE } = input;
   if (stopReason) {
     return stopReason;
   }
   if (budget.phaseCount >= budget.maxPhases) {
-    return `Phase limit reached (${budget.maxPhases}).`;
+    return localizeByLocale(locale, {
+      en: `Phase limit reached (${budget.maxPhases}).`,
+      zh: `已达到阶段上限（${budget.maxPhases}）。`
+    });
   }
   if (asWei(budget.spentWei) >= asWei(budget.maxTotalWei)) {
-    return `Total budget exhausted (${formatCommanderMon(budget.maxTotalWei)} MON).`;
+    return localizeByLocale(locale, {
+      en: `Total budget exhausted (${formatCommanderMon(budget.maxTotalWei)} MON).`,
+      zh: `总预算已耗尽（${formatCommanderMon(budget.maxTotalWei)} MON）。`
+    });
   }
   return null;
 }
@@ -78,8 +90,9 @@ export function applyCommanderPhaseSpend(input: {
   budget: CommanderBudget;
   phaseSpentWei: string;
   stopReason?: string;
+  locale?: LanguageCode;
 }): { budget: CommanderBudget; stopReason?: string } {
-  const { budget, phaseSpentWei, stopReason } = input;
+  const { budget, phaseSpentWei, stopReason, locale = DEFAULT_LANGUAGE_CODE } = input;
   const nextBudget: CommanderBudget = {
     ...budget,
     phaseCount: budget.phaseCount + 1,
@@ -92,17 +105,27 @@ export function applyCommanderPhaseSpend(input: {
   if (asWei(phaseSpentWei) > asWei(nextBudget.maxPerPhaseWei)) {
     return {
       budget: nextBudget,
-      stopReason: `Phase spend ${formatCommanderMon(phaseSpentWei)} MON exceeds per-phase limit ${formatCommanderMon(
-        nextBudget.maxPerPhaseWei
-      )} MON.`
+      stopReason: localizeByLocale(locale, {
+        en: `Phase spend ${formatCommanderMon(phaseSpentWei)} MON exceeds per-phase limit ${formatCommanderMon(
+          nextBudget.maxPerPhaseWei
+        )} MON.`,
+        zh: `单阶段花费 ${formatCommanderMon(phaseSpentWei)} MON 超过单阶段上限 ${formatCommanderMon(
+          nextBudget.maxPerPhaseWei
+        )} MON。`
+      })
     };
   }
   if (asWei(nextBudget.spentWei) >= asWei(nextBudget.maxTotalWei)) {
     return {
       budget: nextBudget,
-      stopReason: `Total spend reached ${formatCommanderMon(nextBudget.spentWei)} MON (limit ${formatCommanderMon(
-        nextBudget.maxTotalWei
-      )} MON).`
+      stopReason: localizeByLocale(locale, {
+        en: `Total spend reached ${formatCommanderMon(nextBudget.spentWei)} MON (limit ${formatCommanderMon(
+          nextBudget.maxTotalWei
+        )} MON).`,
+        zh: `总花费已达到 ${formatCommanderMon(nextBudget.spentWei)} MON（上限 ${formatCommanderMon(
+          nextBudget.maxTotalWei
+        )} MON）。`
+      })
     };
   }
   return { budget: nextBudget };

@@ -1,3 +1,7 @@
+export type LanguageCode = "zh-CN" | "en-US";
+
+export const DEFAULT_LANGUAGE_CODE: LanguageCode = "en-US";
+
 export interface PaymentContext {
   requestHash: string;
   taskType: string;
@@ -34,6 +38,13 @@ export interface ExecuteRequest {
   taskInput?: string;
   timestamp?: number;
   paymentTx?: string;
+  locale?: LanguageCode;
+}
+
+export interface HunterRunRequest {
+  goal?: string;
+  mode?: HunterRunRequestMode;
+  locale?: LanguageCode;
 }
 
 export interface Receipt {

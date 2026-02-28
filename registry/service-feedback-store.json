@@ -410,6 +410,69 @@
       "taskType": "content-generation",
       "comment": "Detailed and high-signal output.",
       "timestamp": 1772017774
+    },
+    {
+      "serviceId": "writer-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "bf37509f-7938-44ec-8825-184f7b9725d0",
+      "score": 90,
+      "taskType": "content-generation",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772104412
+    },
+    {
+      "serviceId": "writer-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "ea561d0c-0c2f-4db6-8567-e434469570a1",
+      "score": 90,
+      "taskType": "content-generation",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772108190
+    },
+    {
+      "serviceId": "defi-analyst-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "b1aa716c-eee7-4f7b-a0c8-f84ea867423f",
+      "score": 90,
+      "taskType": "defi-analysis",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772109002
+    },
+    {
+      "serviceId": "token-scanner-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "b1aa716c-eee7-4f7b-a0c8-f84ea867423f",
+      "score": 90,
+      "taskType": "token-scan",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772109152
+    },
+    {
+      "serviceId": "yield-finder-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "7b2055bf-1d87-4c7a-9d6f-72b34913c610",
+      "score": 90,
+      "taskType": "yield-search",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772192567
+    },
+    {
+      "serviceId": "token-scanner-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "7b2055bf-1d87-4c7a-9d6f-72b34913c610",
+      "score": 90,
+      "taskType": "token-scan",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772192660
+    },
+    {
+      "serviceId": "writer-v1",
+      "hunterId": "10143:0x028a19b9cf135f8d38c04b5a04b1a67d71e1fdb3",
+      "missionId": "7b2055bf-1d87-4c7a-9d6f-72b34913c610",
+      "score": 90,
+      "taskType": "content-generation",
+      "comment": "Detailed and high-signal output.",
+      "timestamp": 1772192780
     }
   ]
 }
