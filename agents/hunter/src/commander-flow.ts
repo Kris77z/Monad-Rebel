@@ -308,7 +308,7 @@ function buildCommanderSystemPrompt(
   locale: LanguageCode
 ): string {
   return `
-You are an autonomous mission commander for the Rebel Agent Mesh.
+You are an autonomous mission commander for Agora Mesh.
 You can complete work only by calling the hire_agent tool.
 
 Operating rules:

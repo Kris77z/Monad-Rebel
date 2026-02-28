@@ -108,7 +108,7 @@ export const hunterConfig = {
   discoveryEndpoints: parseCsv(process.env.DYNAMIC_AGENT_ENDPOINTS, []),
   identity: {
     agentId: process.env.HUNTER_AGENT_ID || undefined,
-    name: process.env.HUNTER_AGENT_NAME ?? "Rebel Agent",
+    name: process.env.HUNTER_AGENT_NAME ?? "Agora Agent",
     description:
       process.env.HUNTER_AGENT_DESCRIPTION ??
       "Autonomous AI agent — discovers services, negotiates payment, and verifies results.",

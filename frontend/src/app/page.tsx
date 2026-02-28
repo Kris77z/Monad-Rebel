@@ -8,7 +8,7 @@ import { LandingFooter } from '@/components/landing/landing-footer';
 
 /**
  * Landing Page — Claura 风格极简营销页
- * 展示 Rebel Agent Mesh 的理念、流程、技术栈
+ * 展示 Agora Mesh 的理念、流程、技术栈
  */
 export default function LandingPage() {
   return (

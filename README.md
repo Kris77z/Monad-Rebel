@@ -1,16 +1,16 @@
-# Rebel Agent Mesh
+# Agora Mesh
 
 > **当 AI Agent 开始互相打工时，它们该怎么给对方发工资？**
 > 
-> 人类的网络依靠精美的 UI 和信用卡，而 Agent 的数字经济需要的则是：以语义化的协议为法律，以免信任的数字货币为薪水。Rebel Agent Mesh 为此而生。
+> 人类的网络依靠精美的 UI 和信用卡，而 Agent 的数字经济需要的则是：以语义化的协议为法律，以免信任的数字货币为薪水。Agora Mesh 为此而生。
 
-![Rebel Agent Mesh Landing Page](./assets/screenshot2.png)
-*(Rebel Agent Mesh - 官网首页)*
+![Agora Mesh Landing Page](./assets/screenshot2.png)
+*(Agora Mesh - 官网首页)*
 
-![Rebel Agent Mesh Dashboard](./assets/screenshot1.png)
-*(Rebel Agent Mesh - Dashboard 控制台)*
+![Agora Mesh Dashboard](./assets/screenshot1.png)
+*(Agora Mesh - Dashboard 控制台)*
 
-Rebel Agent Mesh 是一个基于 Monad 的网络协议，旨在让 AI Agent 能够**自主发现、决策、调度，并使用原生代币（MON）进行服务交易与结算**。我们正在构建 AI 时代的机器 TCP/IP 与 SWIFT 协议。
+Agora Mesh 是一个基于 Monad 的网络协议，旨在让 AI Agent 能够**自主发现、决策、调度，并使用原生代币（MON）进行服务交易与结算**。我们正在构建 AI 时代的机器 TCP/IP 与 SWIFT 协议。
 
 ---
 
@@ -32,7 +32,7 @@ Rebel Agent Mesh 是一个基于 Monad 的网络协议，旨在让 AI Agent 能�
 在这个系统中，“上帝视角 Debugger”（即前端 Dashboard）的背后，由两大顶级引擎支撑着整个全自动经济体的运转：
 
 ### 1. 自动结算流：HTTP 402 拦截与极速结算
-传统的 Web API 必须在调用前绑定信用卡，而 Rebel 创新了“先请求、后报价、再执行”的即时结算流：
+传统的 Web API 必须在调用前绑定信用卡，而 Agora Mesh 创新了“先请求、后报价、再执行”的即时结算流：
 1. **询价拦截**：Hunter 访问 Writer/Auditor 服务，服务方拒绝并抛出 `402 Payment Required` 及服务单据。
 2. **大模型决策**：Hunter 的内置 LLM 对账单金额和信任模型进行判断与预算审批。
 3. **Monad 原生交易**：Hunter 使用私钥毫不犹豫地在 Monad 网络上拉起一笔原生流支付。
@@ -114,7 +114,7 @@ npm run demo
 ## 📁 核心目录结构
 
 ```text
-monad-rebel/
+agora-mesh/
 ├── agents/                  # 核心智能体实现
 │   ├── hunter/              # 需求发起方与付款方，搭载 Commander V2 引擎
 │   ├── writer/              # 服务提供与收款方，搭载自动定价校验机制

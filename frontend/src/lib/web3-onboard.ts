@@ -18,7 +18,7 @@ const injected = injectedModule();
 const walletConnect = walletConnectModule({
     projectId,
     requiredChains: [MONAD_TESTNET.id],
-    dappUrl: 'https://rebel-agent-mesh.xyz',
+    dappUrl: process.env.NEXT_PUBLIC_APP_URL ?? 'https://rebel-agent-mesh.xyz',
 });
 
 /**
@@ -29,9 +29,9 @@ export const onboard = Onboard({
     wallets: [injected, walletConnect],
     chains: [MONAD_TESTNET],
     appMetadata: {
-        name: 'Rebel Agent Mesh',
+        name: 'Agora Mesh',
         description: 'Autonomous Agent Economy on Monad',
-        icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#2B180A"/><text x="16" y="22" text-anchor="middle" fill="#FCF6EF" font-size="16" font-weight="bold">R</text></svg>',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#2B180A"/><text x="16" y="22" text-anchor="middle" fill="#FCF6EF" font-size="16" font-weight="bold">A</text></svg>',
     },
     connect: {
         autoConnectLastWallet: true,

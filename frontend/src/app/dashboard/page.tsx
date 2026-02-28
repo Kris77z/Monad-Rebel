@@ -144,9 +144,9 @@ export default function DashboardPage() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
             </div>
             <Link href="/" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-              <span className="text-primary">rebel</span>
+              <span className="text-primary">agora</span>
               <span className="text-muted-foreground/50">@</span>
-              <span>monad-mesh</span>
+              <span>agora-mesh</span>
               <span className="text-muted-foreground/50">:</span>
               <span className="text-primary">~</span>
               <span className="text-muted-foreground/50">$</span>

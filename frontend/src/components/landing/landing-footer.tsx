@@ -74,7 +74,7 @@ export function LandingFooter() {
             <div className="border-t border-border">
                 <div className="max-w-6xl mx-auto px-8 py-6 flex items-center justify-between">
                     <p className="text-xs text-muted-foreground">
-                        © 2026 Rebel Agent Mesh. All rights reserved.
+                        © 2026 Agora Mesh. All rights reserved.
                     </p>
                     <p className="text-xs text-muted-foreground">
                         Built on Monad

@@ -130,7 +130,7 @@ export const writerConfig = {
   },
   identity: {
     agentId: process.env.WRITER_AGENT_ID?.trim() || undefined,
-    name: process.env.WRITER_AGENT_NAME ?? "Rebel Writer",
+    name: process.env.WRITER_AGENT_NAME ?? "Agora Writer",
     description:
       process.env.WRITER_AGENT_DESCRIPTION ??
       "Autonomous writer agent that sells paid content generation services.",

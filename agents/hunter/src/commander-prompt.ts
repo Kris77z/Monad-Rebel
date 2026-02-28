@@ -24,7 +24,7 @@ const SERVICE_TYPE_SET = new Set<string>(SERVICE_TYPES);
 
 export function buildCommanderDecomposePrompt(locale: LanguageCode = DEFAULT_LANGUAGE_CODE): string {
   return `
-You are a mission commander for the Rebel Agent Mesh.
+You are a mission commander for Agora Mesh.
 
 Break the following mission into 2-4 sequential sub-tasks.
 Each sub-task will be handled by a specialized AI service agent.

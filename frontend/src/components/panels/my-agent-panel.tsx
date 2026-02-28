@@ -68,7 +68,7 @@ export function MyAgentPanel({
       {/* Header + Status Orb */}
       <div className="px-1 py-2 mb-2 widget-label flex items-center gap-1.5">
         <Bot className="w-3 h-3" />
-        <span>rebel.agent</span>
+        <span>agora.agent</span>
         <StatusOrb status={status} size="md" />
       </div>
 

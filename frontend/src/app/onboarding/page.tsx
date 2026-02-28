@@ -27,7 +27,7 @@ export default function OnboardingPage() {
                             <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
                         </div>
                         <Link href="/" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-                            <span className="text-primary">rebel</span>
+                            <span className="text-primary">agora</span>
                             <span className="text-muted-foreground/50">@</span>
                             <span>{t('onboarding.shellPath')}</span>
                             <span className="text-muted-foreground/50">:</span>

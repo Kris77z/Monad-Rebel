@@ -12,9 +12,9 @@ const halant = Halant({
 });
 
 export const metadata: Metadata = {
-  title: "Rebel Agent Mesh | Monad",
+  title: "Agora Mesh | Monad",
   description:
-    "Autonomous Agent Economy on Monad — x402 powered agent-to-agent service network",
+    "Agora Mesh on Monad — x402 powered agent-to-agent service network",
 };
 
 export default function RootLayout({

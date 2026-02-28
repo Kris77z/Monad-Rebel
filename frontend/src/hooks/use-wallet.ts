@@ -12,7 +12,7 @@ export interface WalletState {
 }
 
 /**
- * Hook wrapping @web3-onboard/core for the Rebel Agent Mesh frontend.
+ * Hook wrapping @web3-onboard/core for the Agora Mesh frontend.
  * Provides connect, disconnect, and reactive wallet state.
  */
 export function useWallet() {

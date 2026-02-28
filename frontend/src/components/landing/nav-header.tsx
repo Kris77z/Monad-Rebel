@@ -39,7 +39,7 @@ export function NavHeader() {
                 {/* Center: Brand */}
                 <Link href="/" className="absolute left-1/2 -translate-x-1/2">
                     <h1 className="text-2xl font-heading font-semibold text-foreground tracking-tight">
-                        Rebel Agent Mesh
+                        Agora Mesh
                     </h1>
                 </Link>
 

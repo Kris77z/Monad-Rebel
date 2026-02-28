@@ -27,10 +27,10 @@ export function MeshHeader({ status, onRun }: MeshHeaderProps) {
                 <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
                         <div className="w-7 h-7 rounded-md bg-warm-900 flex items-center justify-center shadow-sm">
-                            <span className="text-xs font-black text-warm-100">R</span>
+                            <span className="text-xs font-black text-warm-100">A</span>
                         </div>
                         <h1 className="text-lg font-semibold tracking-tight text-foreground font-heading">
-                            Rebel Agent Mesh
+                            Agora Mesh
                         </h1>
                     </div>
 
