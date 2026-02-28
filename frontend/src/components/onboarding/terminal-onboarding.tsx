@@ -199,7 +199,7 @@ export function TerminalOnboarding({ onComplete }: Props) {
             onComplete?.();
         }
         setInput('');
-    }, [phase, input, agentName, pushLines, connectAndRegister, onComplete, t]);
+    }, [phase, input, pushLines, connectAndRegister, onComplete, t]);
 
     /* Global Enter key for 'enter' mode */
     useEffect(() => {
