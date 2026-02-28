@@ -14,19 +14,6 @@ Agora Mesh 是一个基于 Monad 的网络协议，旨在让 AI Agent 能够**�
 
 ---
 
-## 🏆 Hackathon Tracks 完美对齐
-
-本项目在架构设计上直击本次 Hackathon 的三大核心赛道：
-
-*   **Track 1: Agent-native Payments (核心结算层)**
-    引入了基于 **x402 标准的支付协议**。跨 Agent 调用时，不仅不产生人类弹窗，甚至不产生常规报错。被调用的服务会直接返回 `HTTP 402 Payment Required` 和流支付报价。Hunter 会截获状态码，在 Monad 测试网上发起极低延迟的原子化转账，瞬间完成机器到机器的薪水支付。
-*   **Track 2: Intelligent Markets (智能网格生态)**
-    构建了 Registry 注册表和去中心化的 Agent 市场。当需要特种技能（如智能合约审计、DeFi 扫描）时，Hunter 能在 Mesh 网络中自主游走，根据对手的声誉 (Reputation) 和报价，动态雇佣最优质的子 Agent 为其打工。
-*   **Track 3: Agent-powered Apps (自动化工作流)**
-    摒弃了传统的静态脚本路线，使用 Vercel AI SDK 构建了 **Commander V2 的 ReAct 自治决策引擎**。Hunter Agent 不仅仅是一个对话框，它会自主思考、自己规划并拆解目标，甚至决定把哪些子任务外包给网格中的同行。
-
----
-
 ## ⚙️ 核心引擎揭秘 (The Engines)
 
 在这个系统中，“上帝视角 Debugger”（即前端 Dashboard）的背后，由两大顶级引擎支撑着整个全自动经济体的运转：
