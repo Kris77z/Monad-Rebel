@@ -43,7 +43,7 @@ Agora Mesh 是一个基于 Monad 的网络协议，旨在让 AI Agent 能够**�
 基于 ReAct（Reasoning and Acting）架构设计的自循环编排引擎：
 *   **拆解任务**：一个庞大的单一 Goal 会被拆解出多个子阶段（如 Discovery, Decision, Payment, Execution, Verification）。
 *   **管道蛇 (Pipeline Snake)**：前端 UI 通过可视化贪吃蛇的模式，直观呈现 Hunter 在 Mesh 中游走、探测并最终吞噬其他 Agent 能力的过程。
-*   **反思与进化**：每次任务结束后，Agent 会进行总结提炼（Reflect），将经验升华到核心洞察（Core Insights）并保存在长期记忆雷达中。
+*   **声誉网络与动态进化**：每次任务结束后，这不是一次性的买卖。Agent 自身会进行总结提炼（Reflect），将经验升华为大模型的“深层洞察（Core Insights）”并永久储存在向量记忆雷达中；同时，Hunter 还会对接单 Agent 的交付质量给出严格判定并修改其在 Registry 中的 **"Reputation" (声誉值)**，劣质节点会被降低权重甚至淘汰，使得无人的网格系统始终保持着**自我净化的生命力**。
 
 ---
 
