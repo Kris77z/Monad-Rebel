@@ -30,10 +30,17 @@ Rebel Agent Mesh 构建了一个让 AI Agent **自主发现、决策、支付、
 ### 前端
 - ✅ Landing Page：极简营销页
 - ✅ Dashboard：三栏布局（My Agent / Mission Timeline / Agent Mesh）
+- ✅ Hunter Memory Profile：可视化 Agent 进化（技能雷达 + 经验统计 + 核心洞察）
+- ✅ Pipeline Snake：全局流水线贪吃蛇，可视化 Commander 多阶段执行进度
+  - 蛇在 Execution 等待期（30-90s）全速追逐 Food
+  - 每完成一个 Phase，蛇身增长一节，直观展示"吸收了 N 个 Agent 能力"
+- ✅ Commander Assembly Line：左栏精简（仅 Goal + Budget），Phase 卡片全部由中栏 Timeline 承载
 - ✅ Onboarding：4 步用户创建 Agent 流程（钱包连接 → 表单 → 审核 → 完成）
 - ✅ 钱包集成：@web3-onboard（MetaMask / WalletConnect v2 / Rabby）
-- ✅ 真实 Agent Identity 展示（连接失败时显示错误状态）
-- ✅ 多类型 Agent 可视化：Mesh + Discovery Snake 按 `taskType` 区分
+- ✅ 真实 Agent Identity + MON 余额展示
+- ✅ 多类型 Agent 可视化：Mesh + Pipeline Snake 按 `taskType` 区分
+- ✅ Reputation 动态展示：评分条 + 趋势 + 样本量
+- ✅ `execution_started` 事件监听：前端识别 Execution 阶段开始
 
 ## 🛠 技术选型
 
@@ -128,17 +135,22 @@ monad-rebel/
 │   ├── src/app/         # Next.js App Router 页面
 │   │   ├── page.tsx         # Landing Page
 │   │   ├── dashboard/       # Dashboard（三栏布局）
-│   │   └── onboarding/      # Agent 创建流程
+│   │   ├── onboarding/      # Agent 创建流程
+│   │   └── api/             # Next.js Route Handlers
+│   │       ├── chain-status/    # 链状态
+│   │       └── hunter/profile/  # Hunter 记忆档案 API
 │   ├── src/components/  # React 组件
-│   │   ├── panels/          # 左栏 + 右栏面板
-│   │   ├── timeline/        # 中栏阶段化时间线
+│   │   ├── panels/          # 左栏 (MyAgentPanel) + 右栏 (AgentMeshPanel)
+│   │   ├── timeline/        # 中栏阶段化时间线 + Pipeline Snake（全局流水线可视化）
 │   │   ├── onboarding/      # Onboarding 表单
 │   │   └── agent/           # Agent 操作组件（GoalInput / ResultView）
 │   ├── src/hooks/       # React Hooks
-│   │   ├── use-agent-stream.ts   # SSE 实时事件流
-│   │   ├── use-agent-identity.ts # Agent 身份数据
-│   │   ├── use-wallet.ts         # @web3-onboard 钱包连接
-│   │   └── use-onboarding.ts     # Onboarding 状态机
+│   │   ├── use-agent-stream.ts       # SSE 实时事件流
+│   │   ├── use-agent-identity.ts     # Agent 身份 + 余额
+│   │   ├── use-hunter-profile.ts     # Memory Profile 数据
+│   │   ├── use-registry-services.ts  # Registry 全量服务
+│   │   ├── use-wallet.ts             # @web3-onboard 钱包连接
+│   │   └── use-onboarding.ts         # Onboarding 状态机
 │   └── src/lib/         # 工具函数
 │       ├── api-config.ts     # API 端点配置
 │       └── web3-onboard.ts   # Onboard 初始化
@@ -153,7 +165,7 @@ monad-rebel/
 ### Hunter Agent (`:3002`)
 | 方法 | 路径 | 用途 |
 |------|------|------|
-| GET | `/identity` | 获取 Hunter 身份信息 |
+| GET | `/identity` | 获取 Hunter 身份 + MON 余额 |
 | POST | `/run` | 执行任务（同步） |
 | POST | `/run/stream` | 执行任务（SSE 实时流） |
 
@@ -172,10 +184,17 @@ monad-rebel/
 | 方法 | 路径 | 用途 |
 |------|------|------|
 | GET | `/health` | 健康检查 |
-| GET | `/services` | 列出已注册服务 |
+| GET | `/services` | 列出已注册服务（含 reputation） |
 | POST | `/services/register` | 注册服务（Writer 自动调用） |
+| POST | `/services/:id/feedback` | 提交服务评分反馈 |
 | GET | `/agents` | 列出已注册 Agent |
 | POST | `/agents/register` | 注册 Agent 身份（Onboarding 调用） |
+
+### Frontend API (Next.js, `:3000`)
+| 方法 | 路径 | 用途 |
+|------|------|------|
+| GET | `/api/chain-status` | Monad 链状态轮询 |
+| GET | `/api/hunter/profile` | Hunter 记忆档案（stats + skills + insights） |
 
 ## 📜 License
 

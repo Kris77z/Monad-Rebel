@@ -152,7 +152,7 @@ function InsightsList({ insights }: { insights: HunterProfile['insights'] }) {
       {insights.length === 0 ? (
         <p className="text-[10px] text-muted-foreground">No distilled lessons yet.</p>
       ) : (
-        <div className="max-h-28 overflow-y-auto scrollbar-thin space-y-1.5 pr-1">
+        <div className="flex flex-col space-y-1.5">
           {insights.map((insight, index) => (
             <motion.div
               key={`${index}-${insight.lesson}`}
@@ -177,7 +177,6 @@ export function HunterMemoryProfile({ profile, loading = false, error = null }: 
   if (loading && !profile) {
     return (
       <div className="space-y-2">
-        <p className="text-[10px] text-muted-foreground">MEMORY PROFILE</p>
         <div className="animate-pulse space-y-1.5">
           <div className="h-7 bg-border/50" />
           <div className="h-7 bg-border/50" />
@@ -197,15 +196,9 @@ export function HunterMemoryProfile({ profile, loading = false, error = null }: 
 
   return (
     <div className="space-y-2.5">
-      <motion.div
-        className="flex items-center justify-between"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <p className="text-[10px] text-muted-foreground">MEMORY PROFILE</p>
-        {error && <span className="text-[9px] text-amber-600">stale cache</span>}
-      </motion.div>
+      {error && (
+        <span className="text-[9px] text-amber-600">stale cache</span>
+      )}
       <HunterStats profile={profile} />
       <SkillRadar skills={profile.skills} />
       <InsightsList insights={profile.insights} />

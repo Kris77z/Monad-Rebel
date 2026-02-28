@@ -29,6 +29,8 @@ export function mapEventToPhase(event: AgentEvent): PhaseId | null {
     if (event.type === 'service_selected') return 'decision';
     if (event.type === 'quote_received' || event.type === 'payment_state') return 'payment';
 
+    if (event.type === 'execution_started') return 'execution';
+
     if (event.type === 'tool_call' || event.type === 'tool_result') {
         const data = asRecord(event.data);
         const tool = typeof data?.tool === 'string' ? data.tool : '';

@@ -156,6 +156,8 @@ export type HunterTraceEventType =
   | "service_selected"
   | "quote_received"
   | "payment_state"
+  | "execution_started"
+  | "execution_heartbeat"
   | "tool_call"
   | "tool_result"
   | "receipt_verified"

@@ -5,6 +5,8 @@ import { formatMON } from '@/lib/format';
 import { motion } from 'motion/react';
 import { useRegistryServices } from '@/hooks/use-registry-services';
 import type { AgentEvent, HunterRunResult } from '@/types/agent';
+import { RepImpactFloater, useIsScanning } from './rep-impact';
+import { HireStamp } from './hire-stamp';
 import {
   AGENT_KIND_STYLE,
   STATUS_TERMINAL,
@@ -32,6 +34,7 @@ export function AgentMeshPanel({ events, result }: AgentMeshPanelProps) {
   const { services: registryServices } = useRegistryServices();
   const eventNodes = buildMeshNodes(events, result);
   const eventNodeIds = new Set(eventNodes.map((n) => n.id));
+  const isScanning = useIsScanning(events);
 
   // Merge: event nodes first (with status), then remaining registry services
   const registryOnlyNodes: MeshNode[] = registryServices
@@ -49,6 +52,7 @@ export function AgentMeshPanel({ events, result }: AgentMeshPanelProps) {
       lastUsedAt: s.reputation?.lastUsedAt,
       kind: classifyServiceKind({ id: s.id, taskType: s.taskType }),
       status: 'online' as const,
+      hireCount: 0,
     }));
 
   // Sort: selected/used/failed first, then by reputation descending
@@ -71,6 +75,7 @@ export function AgentMeshPanel({ events, result }: AgentMeshPanelProps) {
           const kind = AGENT_KIND_STYLE[node.kind];
           const trend = TREND_STYLE[node.reputationTrend ?? 'stable'];
           const isSelected = node.status === 'selected';
+          const isUsed = node.status === 'used';
           return (
             <motion.div
               key={node.id}
@@ -78,18 +83,27 @@ export function AgentMeshPanel({ events, result }: AgentMeshPanelProps) {
               initial={{ opacity: 0, x: 12 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+              className="relative"
             >
+              {/* Rep impact floater */}
+              {(isUsed || isSelected) && (
+                <RepImpactFloater events={events} nodeId={node.id} />
+              )}
+
               <div
                 className={cn(
-                  'border bg-card p-3 transition-all',
+                  'relative border bg-card p-3 transition-all',
                   cardGlowClass(node),
-                  isSelected && 'phase-active-glow',
+                  isSelected && 'agent-hired-glow',
+                  !isSelected && isScanning && 'agent-scanning',
                 )}
               >
+                {/* Circular hire stamp (inside the card) */}
+                <HireStamp count={node.hireCount} />
+
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="text-sm truncate">{node.name}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{node.id}</p>
                   </div>
                   <span className={cn('text-[10px] shrink-0', st.cls)}>{st.marker}</span>
                 </div>
@@ -131,10 +145,6 @@ export function AgentMeshPanel({ events, result }: AgentMeshPanelProps) {
                     </span>
                   </div>
                 </div>
-
-                {node.endpoint && (
-                  <p className="mt-2 text-[10px] text-muted-foreground truncate">{node.endpoint}</p>
-                )}
               </div>
             </motion.div>
           );

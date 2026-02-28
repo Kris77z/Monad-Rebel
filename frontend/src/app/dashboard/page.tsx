@@ -12,6 +12,7 @@ import { useAgentStream } from '@/hooks/use-agent-stream';
 import { useHunterProfile } from '@/hooks/use-hunter-profile';
 import { useMissionHistory } from '@/hooks/use-mission-history';
 import type { AgentEvent } from '@/types/agent';
+import { asRecord } from '@/lib/type-guards';
 import { AlertCircle, History } from 'lucide-react';
 import Link from 'next/link';
 
@@ -37,9 +38,7 @@ function extractMission(events: AgentEvent[]): string | undefined {
   return typeof goal === 'string' ? goal : undefined;
 }
 
-function asRecord(v: unknown): Record<string, unknown> | null {
-  return v && typeof v === 'object' ? (v as Record<string, unknown>) : null;
-}
+/* asRecord imported from @/lib/type-guards */
 
 /* ─── Mobile tab constants ─── */
 const TABS = [
@@ -130,6 +129,7 @@ export default function DashboardPage() {
         onClear={clearHistory}
         onSelect={(goal) => setInjectedGoal(goal)}
       />
+
 
       {/* ═══ Terminal Title Bar ═══ */}
       <header className="border-b border-border bg-card px-4 py-2">

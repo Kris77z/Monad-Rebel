@@ -19,11 +19,11 @@ interface KimiToolCall {
 type KimiMessage =
   | { role: "system" | "user"; content: string }
   | {
-      role: "assistant";
-      content: string;
-      tool_calls?: KimiToolCall[];
-      reasoning_content?: string;
-    }
+    role: "assistant";
+    content: string;
+    tool_calls?: KimiToolCall[];
+    reasoning_content?: string;
+  }
   | { role: "tool"; tool_call_id: string; name: string; content: string };
 
 function safeStringify(value: unknown): string {
@@ -109,6 +109,14 @@ export async function runKimiReactLoop(
         error instanceof Error && "cause" in error
           ? (error as Error & { cause?: unknown }).cause
           : undefined;
+      console.error("🚨 Kimi network fetch failed!", {
+        error: String(error),
+        message: error instanceof Error ? error.message : "Unknown",
+        detail,
+        baseURL,
+        endpoint,
+        stack: error instanceof Error ? error.stack : undefined
+      });
       throw new HunterError(
         502,
         "LLM_EXECUTION_FAILED",
@@ -119,15 +127,15 @@ export async function runKimiReactLoop(
 
     const payload = (await response.json()) as
       | {
-          choices?: Array<{
-            message?: {
-              content?: string | null;
-              tool_calls?: KimiToolCall[];
-              reasoning_content?: string;
-            };
-          }>;
-          error?: { message?: string };
-        }
+        choices?: Array<{
+          message?: {
+            content?: string | null;
+            tool_calls?: KimiToolCall[];
+            reasoning_content?: string;
+          };
+        }>;
+        error?: { message?: string };
+      }
       | undefined;
 
     if (!response.ok) {

@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Loader2, Send, Zap } from 'lucide-react';
 import type { RunRequestMode } from '@/hooks/use-agent-stream';
+import { PRESETS, PresetForm, type Preset } from './preset-form';
 
 interface GoalInputProps {
     onRun: (goal: string, mode?: RunRequestMode) => void;
@@ -11,49 +12,6 @@ interface GoalInputProps {
     externalGoal?: string;
 }
 
-/** Terminal-style preset commands */
-const PRESETS = [
-    // Single-agent quick tasks
-    {
-        label: '// write',
-        goal: 'Write a concise analysis of Monad parallel execution and why it matters for on-chain AI agents.',
-    },
-    {
-        label: '// audit',
-        goal: 'Audit this ERC-20 token contract for loss-of-funds vulnerabilities: check reentrancy, access control, and unchecked returns.',
-    },
-    {
-        label: '// defi',
-        goal: 'Analyze the DeFi landscape on Monad testnet. What protocols exist, what are their TVL drivers, and what risks should I watch?',
-    },
-    // Multi-phase commander missions (trigger 2-4 different agent types)
-    {
-        label: '// full-audit',
-        goal: 'Perform a full security review of this token contract: first audit the Solidity code for vulnerabilities, then scan for rug-pull signals, then optimize gas usage, and finally write a comprehensive security report.',
-        commander: true,
-    },
-    {
-        label: '// token-report',
-        goal: 'Generate an investment report for this token: first scan the contract for risks, then analyze its DeFi ecosystem potential, and write a final investment thesis with risk-reward analysis.',
-        commander: true,
-    },
-    {
-        label: '// defi-strategy',
-        goal: 'Build a DeFi strategy on Monad: first analyze the current yield landscape, then scan the top protocol tokens for safety, and produce a written portfolio allocation plan.',
-        commander: true,
-    },
-    {
-        label: '// tx-deep-dive',
-        goal: 'Investigate this suspicious transaction: first decode the transaction to understand what happened, then read the contract ABI to find admin functions, and write a risk assessment report.',
-        commander: true,
-    },
-    {
-        label: '// contract-review',
-        goal: 'Do a complete contract review: audit the code for security issues, optimize gas efficiency, read the ABI to document all functions, and generate a developer-facing technical report.',
-        commander: true,
-    },
-];
-
 /** Auto-resize textarea to fit content (max 5 rows) */
 const MAX_ROWS = 5;
 const LINE_HEIGHT = 20; // px per row
@@ -61,6 +19,7 @@ const LINE_HEIGHT = 20; // px per row
 export function GoalInput({ onRun, isLoading, externalGoal }: GoalInputProps) {
     const [goal, setGoal] = useState('');
     const [commanderMode, setCommanderMode] = useState(true);
+    const [activePreset, setActivePreset] = useState<Preset | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const autoResize = useCallback(() => {
@@ -74,6 +33,7 @@ export function GoalInput({ onRun, isLoading, externalGoal }: GoalInputProps) {
     useEffect(() => {
         if (externalGoal !== undefined && externalGoal !== goal) {
             setGoal(externalGoal);
+            setActivePreset(null);
             setTimeout(autoResize, 0);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -84,7 +44,6 @@ export function GoalInput({ onRun, isLoading, externalGoal }: GoalInputProps) {
         if (trimmed && !isLoading) {
             onRun(trimmed, commanderMode ? 'commander' : 'single');
             setGoal('');
-            /* Reset textarea height */
             if (textareaRef.current) {
                 textareaRef.current.style.height = `${LINE_HEIGHT}px`;
             }
@@ -103,30 +62,64 @@ export function GoalInput({ onRun, isLoading, externalGoal }: GoalInputProps) {
         autoResize();
     };
 
+    /** Handle preset click: direct-fill if no params, open form if params needed */
+    const handlePresetClick = (preset: Preset) => {
+        if (preset.params && preset.params.length > 0) {
+            // Toggle form: clicking same preset closes it
+            setActivePreset((prev) => (prev?.label === preset.label ? null : preset));
+        } else {
+            // Direct fill — no params needed
+            setGoal(preset.goal);
+            setActivePreset(null);
+            if (preset.commander) setCommanderMode(true);
+            setTimeout(autoResize, 0);
+        }
+    };
+
+    /** Called by PresetForm when user submits with filled params */
+    const handlePresetSubmit = (compiledGoal: string, isCommander: boolean) => {
+        setGoal(compiledGoal);
+        setActivePreset(null);
+        if (isCommander) setCommanderMode(true);
+        setTimeout(autoResize, 0);
+        // Focus textarea so user can review before sending
+        textareaRef.current?.focus();
+    };
+
     return (
         <div className="space-y-2">
             {/* Preset commands */}
             <div className="flex flex-wrap gap-2">
-                {PRESETS.map((p) => (
-                    <button
-                        key={p.label}
-                        onClick={() => {
-                            setGoal(p.goal);
-                            if ('commander' in p && p.commander) setCommanderMode(true);
-                            setTimeout(autoResize, 0);
-                        }}
-                        disabled={isLoading}
-                        className={`px-2 py-0.5 text-[11px] border transition-all disabled:opacity-30 cursor-pointer ${'commander' in p && p.commander
-                            ? 'text-amber-500 border-amber-500/40 hover:text-amber-400 hover:border-amber-400/60'
-                            : 'text-muted-foreground border-border hover:text-primary hover:border-primary/50 hover:text-glow'
-                            }`}
-                    >
-                        {p.label}
-                    </button>
-                ))}
+                {PRESETS.map((p) => {
+                    const needsParams = p.params && p.params.length > 0;
+                    const isActive = activePreset?.label === p.label;
+                    return (
+                        <button
+                            key={p.label}
+                            onClick={() => handlePresetClick(p)}
+                            disabled={isLoading}
+                            className={`px-2 py-0.5 text-[11px] border transition-all disabled:opacity-30 cursor-pointer ${isActive
+                                    ? 'text-primary border-primary/60 bg-primary/10'
+                                    : p.commander
+                                        ? 'text-amber-500 border-amber-500/40 hover:text-amber-400 hover:border-amber-400/60'
+                                        : 'text-muted-foreground border-border hover:text-primary hover:border-primary/50 hover:text-glow'
+                                }`}
+                        >
+                            {p.label}{needsParams ? ' …' : ''}
+                        </button>
+                    );
+                })}
             </div>
 
-            {/* Terminal command line (multi-line) */}
+            {/* Inline parameter form (only shown when a preset with params is active) */}
+            {activePreset && activePreset.params && (
+                <PresetForm
+                    preset={activePreset}
+                    onSubmit={handlePresetSubmit}
+                    onCancel={() => setActivePreset(null)}
+                />
+            )}
+
             {/* Commander mode toggle */}
             <div className="flex items-center gap-2">
                 <button

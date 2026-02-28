@@ -17,6 +17,8 @@ export interface MeshNode {
     lastUsedAt?: number;
     kind: AgentKind;
     status: 'online' | 'selected' | 'used' | 'failed';
+    /** Number of times this agent was hired (service_selected) in the current session */
+    hireCount: number;
 }
 
 export interface ServiceMeta {
@@ -150,14 +152,27 @@ function parseDiscoveredServices(payload: Record<string, unknown> | undefined): 
 export function buildMeshNodes(events: AgentEvent[], result: HunterRunResult | null): MeshNode[] {
     const discoveredData = readLastObjectData(events, 'services_discovered');
     const selectedData = readLastObjectData(events, 'service_selected');
-    const selectedId = typeof selectedData?.id === 'string' ? selectedData.id : undefined;
+    const rawSelectedId = typeof selectedData?.id === 'string' ? selectedData.id : undefined;
     const selectedTaskType = typeof selectedData?.taskType === 'string' ? selectedData.taskType : undefined;
+
+    // When mission is done, demote "selected" to "used"
+    const missionDone = events.some((e) => e.type === 'run_completed' || e.type === 'run_failed');
+    const selectedId = missionDone ? undefined : rawSelectedId;
+
     const usedIds = new Set(
         events
             .filter((event) => event.type === 'service_selected' && typeof event.data === 'object')
             .map((event) => asRecord(event.data)?.id)
             .filter((id): id is string => typeof id === 'string')
     );
+    // Count how many times each agent was hired
+    const hireCounts = new Map<string, number>();
+    events
+        .filter((event) => event.type === 'service_selected' && typeof event.data === 'object')
+        .forEach((event) => {
+            const id = asRecord(event.data)?.id;
+            if (typeof id === 'string') hireCounts.set(id, (hireCounts.get(id) ?? 0) + 1);
+        });
     if (selectedId) usedIds.delete(selectedId);
 
     const attempts = Array.isArray(selectedData?.attempts)
@@ -174,7 +189,7 @@ export function buildMeshNodes(events: AgentEvent[], result: HunterRunResult | n
     const metaById = new Map(discoveredServices.map((item) => [item.id, item]));
 
     const ids = new Set<string>(discoveredIds);
-    if (selectedId) ids.add(selectedId);
+    if (rawSelectedId) ids.add(rawSelectedId);
     if (result?.service?.id) ids.add(result.service.id);
     for (const id of usedIds) ids.add(id);
     if (ids.size === 0) return [];
@@ -182,17 +197,17 @@ export function buildMeshNodes(events: AgentEvent[], result: HunterRunResult | n
     return [...ids].map((id) => {
         const meta = metaById.get(id);
         const taskType =
-            (selectedId === id ? selectedTaskType : undefined) ??
+            (rawSelectedId === id ? selectedTaskType : undefined) ??
             (result?.service?.id === id ? result.service.taskType : undefined) ??
             meta?.taskType;
         const reputation = meta?.reputation ?? (result?.service?.id === id ? result.service.reputation : undefined);
         return {
             id,
             name: (result?.service?.id === id ? result.service.name : undefined) ?? meta?.name ?? toTitle(id),
-            endpoint: selectedId === id && typeof selectedData?.endpoint === 'string'
+            endpoint: rawSelectedId === id && typeof selectedData?.endpoint === 'string'
                 ? selectedData.endpoint
                 : result?.service?.id === id ? result.service.endpoint : undefined,
-            price: selectedId === id && typeof selectedData?.price === 'string'
+            price: rawSelectedId === id && typeof selectedData?.price === 'string'
                 ? selectedData.price
                 : result?.service?.id === id ? result.service.price : meta?.price,
             taskType,
@@ -203,6 +218,7 @@ export function buildMeshNodes(events: AgentEvent[], result: HunterRunResult | n
             lastUsedAt: reputation?.lastUsedAt,
             kind: classifyServiceKind({ id, taskType }),
             status: selectedId === id ? 'selected' : failedIds.has(id) ? 'failed' : usedIds.has(id) ? 'used' : 'online',
+            hireCount: hireCounts.get(id) ?? 0,
         };
     });
 }

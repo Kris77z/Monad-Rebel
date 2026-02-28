@@ -36,6 +36,8 @@ export async function GET() {
             gasGwei: gasWei !== null ? (gasWei / 1e9).toFixed(2) : null,
         });
     } catch {
-        return NextResponse.json({ blockNumber: null, gasGwei: null }, { status: 502 });
+        // Monad Testnet RPC is often unstable/rate-limited. 
+        // Returning 200 with null values prevents the frontend terminal from spamming 502 errors.
+        return NextResponse.json({ blockNumber: null, gasGwei: null });
     }
 }

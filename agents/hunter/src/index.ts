@@ -8,7 +8,7 @@ import {
   registerHunterIdentityOnChain
 } from "./onchain-registration.js";
 import { runHunter, type HunterTraceEvent } from "./react-engine.js";
-import { getHunterAddress } from "./wallet.js";
+import { checkHunterBalance, getHunterAddress } from "./wallet.js";
 
 const app = express();
 
@@ -129,10 +129,14 @@ app.get("/health", (_req, res) => {
 
 app.get("/identity", async (_req, res) => {
   try {
-    const onchain = await getHunterOnChainRegistrationStatus();
+    const [onchain, balance] = await Promise.all([
+      getHunterOnChainRegistrationStatus(),
+      checkHunterBalance(),
+    ]);
     res.status(200).json({
       identity: getHunterIdentity(),
-      onchain
+      onchain,
+      balance: { wei: balance.wei, mon: balance.mon },
     });
   } catch (error) {
     res.status(500).json({

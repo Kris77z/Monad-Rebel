@@ -31,6 +31,7 @@ export interface OnchainStatus {
 export interface HunterIdentityResponse {
     identity: AgentIdentity;
     onchain?: OnchainStatus;
+    balance?: { wei: string; mon: string };
 }
 
 export interface WriterIdentityResponse {
@@ -68,6 +69,9 @@ async function fetchIdentity<T>(url: string): Promise<T> {
     } catch (error) {
         if (error instanceof DOMException && error.name === 'AbortError') {
             throw new Error(`Request timeout (${IDENTITY_TIMEOUT_MS}ms)`);
+        }
+        if (error instanceof TypeError && /fetch/i.test(error.message)) {
+            throw new Error('Agent offline — connection refused');
         }
         throw error instanceof Error ? error : new Error(String(error));
     } finally {
@@ -111,7 +115,7 @@ export function useAgentIdentity() {
     }, []);
 
     useEffect(() => {
-        void fetchIdentities();
+        fetchIdentities().catch(() => { /* swallowed — errors handled inside */ });
     }, [fetchIdentities]);
 
     return { ...state, refresh: fetchIdentities };

@@ -275,14 +275,33 @@ export async function executePhase(
     txHash: payment.txHash
   });
 
-  hunterLog(`execute: submitting payment proof to ${selectedService.id}...`);
-  const execution = await submitPaymentAndGetResult({
-    service: selectedService,
-    paymentTx: payment.txHash,
-    taskType: quote.paymentContext.taskType,
-    taskInput: goal,
-    timestamp: quote.paymentContext.timestamp
+  emitTrace(options, "execution_started", {
+    serviceId: selectedService.id,
+    taskType: selectedService.taskType ?? quote.paymentContext.taskType,
+    goal
   });
+
+  const executionStartedAt = Date.now();
+  const executionHeartbeat = setInterval(() => {
+    emitTrace(options, "execution_heartbeat", {
+      elapsed: Date.now() - executionStartedAt
+    });
+  }, 10_000);
+
+  hunterLog(`execute: submitting payment proof to ${selectedService.id}...`);
+  let execution: Awaited<ReturnType<typeof submitPaymentAndGetResult>>;
+  try {
+    execution = await submitPaymentAndGetResult({
+      service: selectedService,
+      paymentTx: payment.txHash,
+      taskType: quote.paymentContext.taskType,
+      taskInput: goal,
+      timestamp: quote.paymentContext.timestamp
+    });
+  } finally {
+    clearInterval(executionHeartbeat);
+  }
+
   hunterLog(`execute: result received (${execution.result.length} chars), payment=${execution.payment.status}`);
   hunterDebug(`execute: result preview: "${execution.result.slice(0, 200)}..."`);
   emitTrace(options, "payment_state", {
